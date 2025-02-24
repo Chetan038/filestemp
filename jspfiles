@@ -1,1 +1,186 @@
 jsp files
+
+
+Here are the required JSP files for your Employee Management Application:
+
+1. index.jsp (Home Page - Displays Employee List)
+
+Path: webapp/index.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.List, com.dao.EmployeeDAO, com.entity.Employee, com.conn.DbConnect" %>
+<%@include file="navbar.jsp" %>
+<%
+    EmployeeDAO dao = new EmployeeDAO(DbConnect.getConn());
+    List<Employee> employees = dao.getAllEmployees();
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Management</title>
+    <%@include file="allcss.jsp" %>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Employee List</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Salary</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (Employee emp : employees) { %>
+                <tr>
+                    <td><%= emp.getEmpSeqId() %></td>
+                    <td><%= emp.getEmpName() %></td>
+                    <td><%= emp.getEmpDeptId() %></td>
+                    <td><%= emp.getEmpPerDaySal() %></td>
+                    <td><%= emp.getStatus() %></td>
+                    <td>
+                        <a href="edit_employee.jsp?id=<%= emp.getEmpSeqId() %>" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="deleteEmployee?id=<%= emp.getEmpSeqId() %>" class="btn btn-danger btn-sm">Delete</a>
+                        <a href="toggleStatus?id=<%= emp.getEmpSeqId() %>" class="btn btn-warning btn-sm">Toggle Status</a>
+                    </td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+        <a href="add_employee.jsp" class="btn btn-success">Add Employee</a>
+        <a href="logout" class="btn btn-danger">Logout</a>
+    </div>
+</body>
+</html>
+
+2. add_employee.jsp (Employee Registration Page)
+
+Path: webapp/add_employee.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@include file="navbar.jsp" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Add Employee</title>
+    <%@include file="allcss.jsp" %>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Add Employee</h2>
+        <form action="addEmployee" method="post">
+            <div class="mb-3">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Department</label>
+                <select name="deptId" class="form-control">
+                    <option value="3">Admin</option>
+                    <option value="2">HR</option>
+                    <option value="1">IT</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Per Day Salary</label>
+                <input type="number" step="0.01" name="salary" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success">Add Employee</button>
+            <a href="index.jsp" class="btn btn-secondary">Home</a>
+            <a href="logout" class="btn btn-danger">Logout</a>
+        </form>
+    </div>
+</body>
+</html>
+
+3. edit_employee.jsp (Edit Employee Page)
+
+Path: webapp/edit_employee.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.dao.EmployeeDAO, com.entity.Employee, com.conn.DbConnect" %>
+<%@include file="navbar.jsp" %>
+<%
+    int empId = Integer.parseInt(request.getParameter("id"));
+    EmployeeDAO dao = new EmployeeDAO(DbConnect.getConn());
+    Employee emp = dao.getAllEmployees().stream().filter(e -> e.getEmpSeqId() == empId).findFirst().orElse(null);
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Employee</title>
+    <%@include file="allcss.jsp" %>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Edit Employee</h2>
+        <form action="editEmployee" method="post">
+            <input type="hidden" name="empId" value="<%= emp.getEmpSeqId() %>">
+            <div class="mb-3">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control" value="<%= emp.getEmpName() %>" required>
+            </div>
+            <div class="mb-3">
+                <label>Department</label>
+                <select name="deptId" class="form-control">
+                    <option value="3" <%= emp.getEmpDeptId() == 3 ? "selected" : "" %>>Admin</option>
+                    <option value="2" <%= emp.getEmpDeptId() == 2 ? "selected" : "" %>>HR</option>
+                    <option value="1" <%= emp.getEmpDeptId() == 1 ? "selected" : "" %>>IT</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Per Day Salary</label>
+                <input type="number" step="0.01" name="salary" class="form-control" value="<%= emp.getEmpPerDaySal() %>" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Employee</button>
+            <a href="index.jsp" class="btn btn-secondary">Home</a>
+            <a href="logout" class="btn btn-danger">Logout</a>
+        </form>
+    </div>
+</body>
+</html>
+
+4. login.jsp (Login Page)
+
+Path: webapp/login.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <%@include file="allcss.jsp" %>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Login</h2>
+        <form action="login" method="post">
+            <div class="mb-3">
+                <label>Username</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+</body>
+</html>
+
+These JSP files allow:
+	•	Displaying employees (index.jsp)
+	•	Adding a new employee (add_employee.jsp)
+	•	Editing employee details (edit_employee.jsp)
+	•	Logging in (login.jsp)
+
+Let me know if you need further modifications!
