@@ -184,3 +184,81 @@ These JSP files allow:
 	•	Logging in (login.jsp)
 
 Let me know if you need further modifications!
+
+
+
+
+€€€€€€€€
+
+Here is the updated index.jsp file with the additional columns:
+
+index.jsp (Updated)
+
+Path: webapp/index.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.List, com.dao.EmployeeDAO, com.entity.Employee, com.conn.DbConnect" %>
+<%@include file="navbar.jsp" %>
+<%
+    EmployeeDAO dao = new EmployeeDAO(DbConnect.getConn());
+    List<Employee> employees = dao.getAllEmployees();
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Management</title>
+    <%@include file="allcss.jsp" %>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Employee List</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Per Day Salary</th>
+                    <th>Status</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Date Created</th>
+                    <th>Date Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (Employee emp : employees) { %>
+                <tr>
+                    <td><%= emp.getEmpSeqId() %></td>
+                    <td><%= emp.getEmpName() %></td>
+                    <td><%= emp.getEmpDeptId() %></td>
+                    <td><%= emp.getEmpPerDaySal() %></td>
+                    <td><%= emp.getStatus() %></td>
+                    <td><%= emp.getCreatedBy() %></td>
+                    <td><%= emp.getUpdatedBy() %></td>
+                    <td><%= emp.getDtCreated() %></td>
+                    <td><%= emp.getDtUpdated() %></td>
+                    <td>
+                        <a href="edit_employee.jsp?id=<%= emp.getEmpSeqId() %>" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="deleteEmployee?id=<%= emp.getEmpSeqId() %>" class="btn btn-danger btn-sm">Delete</a>
+                        <a href="toggleStatus?id=<%= emp.getEmpSeqId() %>" class="btn btn-warning btn-sm">Toggle Status</a>
+                    </td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+        <a href="add_employee.jsp" class="btn btn-success">Add Employee</a>
+        <a href="logout" class="btn btn-danger">Logout</a>
+    </div>
+</body>
+</html>
+
+Added Columns:
+	•	Created By → emp.getCreatedBy()
+	•	Updated By → emp.getUpdatedBy()
+	•	Date Created → emp.getDtCreated()
+	•	Date Updated → emp.getDtUpdated()
+
+This ensures that the employee records also display their timestamps and tracking information. Let me know if you need any changes!
