@@ -1,1 +1,67 @@
+login jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Page</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form action="LoginServlet" method="post">
+        <label>Username:</label>
+        <input type="text" name="username" required><br>
+        <label>Password:</label>
+        <input type="password" name="password" required><br>
+        <input type="submit" value="Login">
+    </form>
+</body>
+</html>
+
+
+home jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="javax.servlet.http.HttpSession" %>
+<%
+    HttpSession session1 = request.getSession(false);
+    if (session1 == null || session1.getAttribute("user") == null) {
+        response.sendRedirect("login.jsp");
+    }
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Page</title>
+</head>
+<body>
+    <h2>Welcome, <%= session1.getAttribute("user") %>!</h2>
+    <a href="logout.jsp">Logout</a>
+</body>
+</html>
+
+
+
+
+error jsp
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Failed</title>
+</head>
+<body>
+    <h2>Invalid username or password</h2>
+    <a href="login.jsp">Try Again</a>
+</body>
+</html>
+
+logut jsp
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+    session.invalidate();
+    response.sendRedirect("login.jsp");
+%>
 
