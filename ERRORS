@@ -92,3 +92,9 @@ Summary of Fixes
 	•	Modify AddEmployeeServlet to handle a missing session gracefully.
 
 Now restart your server and try logging in again. Let me know if the issue persists!
+
+
+
+Caused by: Error : 942, Position : 126, SQL = INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, CREATED_BY, UPDATED_BY) VALUES (INTSO.EMP_SEQ_ID.nextval, :1 , :2 , :3 , :4 , :5 , :6 ), Original SQL = INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, CREATED_BY, UPDATED_BY) VALUES (INTSO.EMP_SEQ_ID.nextval, ?, ?, ?, ?, ?, ?), Error Message = ORA-00942: table or view does not exist
+
+	at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:720)
