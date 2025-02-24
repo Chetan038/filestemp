@@ -1,0 +1,248 @@
+my maven project file consits of this i am create a employe mangment app
+
+make file and tell where to save it 
+
+create a addemploeye servlet and jsp for adding the employe details to databse 
+
+and simliary delete to servlet to delete when clicked on delte button a delete button 
+
+file are stored in this way
+src/main/java
+com.conn->DbConnect.java
+com.dao->UserDAO.java,EmployeeDAO.java
+com.entity->Employee.java
+com.servlet->LoginServlet.java
+
+
+
+
+
+
+webapp
+Add_Emp.jsp
+Edit_emp.jsp
+index.jsp in which all data must to shown from a table and a it should have action buton in reach row of reacord to having button edit delete and a button in button to add new emloye detals and logut button
+create this 
+
+
+
+
+some already create files which are working properly and this is half project complete full project are make using reference of this files 
+
+DbConnect.java
+package com.conn;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+
+public class DbConnect {
+	private static Connection conn=null;
+	public static Connection getConn()
+	{
+		
+		
+		
+		try {
+			
+		Class.forName("oracle.jdbc.driver.OracleDriver");
+		conn=DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe","intcu","INTCU_pwd");
+		System.out.print("connnnectedddd");
+		
+     
+		
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.out.print("notconnectedddd");
+		}
+		return conn;
+	}
+	
+	
+
+}
+
+
+
+
+EmployeeDAO.java
+
+package com.dao;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import com.conn.DbConnect;
+import com.entity.Employee;
+
+public class EmployeeDAO {
+    private Connection conn;
+
+    public EmployeeDAO(Connection conn) { this.conn = conn; }
+
+   
+
+    public List<Employee> getAllEmployees() {
+        List<Employee> list = new ArrayList<>();
+        try {
+            String query = "SELECT * FROM INTSO.EMPLOYEE";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Employee emp = new Employee();
+                emp.setEmpSeqId(rs.getInt("EMP_SEQ_ID"));
+                emp.setEmpName(rs.getString("EMP_NAME"));
+                emp.setEmpDeptId(rs.getInt("EMP_DEPT_ID"));
+                emp.setEmpPerDaySal(rs.getDouble("EMP_PER_DAY_SAL"));
+                emp.setStatus(rs.getString("STATUS"));
+                emp.setDtCreated(rs.getString("DT_CREATED"));
+                emp.setCreatedBy(rs.getInt("CREATED_BY"));
+                emp.setDtUpdated(rs.getString("DT_UPDATED"));
+                emp.setUpdatedBy(rs.getInt("UPDATED_BY"));
+                list.add(emp);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+    
+    public boolean updateEmployee(Employee emp) {
+        boolean status = false;
+        try {
+            String query = "UPDATE INTSO.EMPLOYEE SET EMP_NAME=?, EMP_DEPT_ID=?, EMP_PER_DAY_SAL=?, STATUS=?, DT_UPDATED=SYSTIMESTAMP, UPDATED_BY=? WHERE EMP_SEQ_ID=?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, emp.getEmpName());
+            ps.setInt(2, emp.getEmpDeptId());
+            ps.setDouble(3, emp.getEmpPerDaySal());
+            ps.setString(4, emp.getStatus());
+            ps.setInt(5, emp.getUpdatedBy());
+            ps.setInt(6, emp.getEmpSeqId());
+            status = ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return status;
+    }
+    
+
+    public Employee getEmployeeById(int empId) {
+        Employee emp = null;
+        try {
+            String query = "SELECT * FROM INTSO.EMPLOYEE WHERE EMP_SEQ_ID=?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, empId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                emp = new Employee();
+                emp.setEmpSeqId(rs.getInt("EMP_SEQ_ID"));
+                emp.setEmpName(rs.getString("EMP_NAME"));
+                emp.setEmpDeptId(rs.getInt("EMP_DEPT_ID"));
+                emp.setEmpPerDaySal(rs.getDouble("EMP_PER_DAY_SAL"));
+                emp.setStatus(rs.getString("STATUS"));
+                emp.setCreatedBy(rs.getInt("CREATED_BY"));
+                emp.setUpdatedBy(rs.getInt("UPDATED_BY"));
+               
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return emp;
+    }
+
+ 
+}
+UserDAO.java
+
+package com.dao;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import com.entity.User;
+
+public class UserDAO {
+    private Connection conn;
+
+    public UserDAO(Connection conn) {
+        this.conn = conn;
+    }
+
+    // Validate user login
+    public boolean validateUser(String username, String password) {
+        boolean status = false;
+        try {
+            String query = "SELECT user_seq_id FROM Intso.app_user WHERE username=? AND password=?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, username);
+            ps.setString(2, password);
+            status = ps.executeQuery().next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return status;
+    }
+
+    // Insert new user into the database
+    public boolean registerUser(User user) {
+        boolean status = false;
+        try {
+            String query = "INSERT INTO Intso.app_user (user_seq_id, email_address, password, username) VALUES (INTSO.APP_USER_SEQ.nextval, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(query);
+           
+            ps.setString(1, user.getEmailAddress());
+            ps.setString(2, user.getPassword());
+            ps.setString(3, user.getUsername());
+           
+
+
+            int rowAffected = ps.executeUpdate();
+            status = rowAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return status;
+    }
+}
+
+Employee.java
+package com.entity;
+
+public class Employee {
+    private int empSeqId;
+    private String empName;
+    private int empDeptId;
+    private double empPerDaySal;
+    private String status;
+    private String dtCreated;
+    private int createdBy;
+    private String dtUpdated;
+    private int updatedBy;
+
+    // Getters and Setters
+    public int getEmpSeqId() { return empSeqId; }
+    public void setEmpSeqId(int empSeqId) { this.empSeqId = empSeqId; }
+
+    public String getEmpName() { return empName; }
+    public void setEmpName(String empName) { this.empName = empName; }
+
+    public int getEmpDeptId() { return empDeptId; }
+    public void setEmpDeptId(int empDeptId) { this.empDeptId = empDeptId; }
+
+    public double getEmpPerDaySal() { return empPerDaySal; }
+    public void setEmpPerDaySal(double empPerDaySal) { this.empPerDaySal = empPerDaySal; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getDtCreated() { return dtCreated; }
+    public void setDtCreated(String dtCreated) { this.dtCreated = dtCreated; }
+
+    public int getCreatedBy() { return createdBy; }
+    public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
+
+    public String getDtUpdated() { return dtUpdated; }
+    public void setDtUpdated(String dtUpdated) { this.dtUpdated = dtUpdated; }
+
+    public int getUpdatedBy() { return updatedBy; }
+    public void setUpdatedBy(int updatedBy) { this.updatedBy = updatedBy; }
+}
+
+
+create all more servlet java and jsp files needed in this package to achive this functiontites and tell where to put them 
