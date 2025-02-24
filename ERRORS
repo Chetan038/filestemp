@@ -3,3 +3,92 @@ EROORS
 Feb 24, 2025 9:44:37 PM org.apache.catalina.core.StandardWrapperValve invoke
 SEVERE: Servlet.service() for servlet [com.servlet.AddEmployeeServlet] in context with path [/webappservlet] threw exception
 java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "jakarta.servlet.http.HttpSession.getAttribute(String)" is null
+
+
+fix
+
+The error “Cannot invoke java.lang.Integer.intValue() because the return value of HttpSession.getAttribute(String) is null” means that your session does not have the user_seq_id attribute set.
+
+Fix: Ensure user_seq_id is Stored in Session
+
+Modify LoginServlet.java to store the user_seq_id in the session:
+
+1️⃣ Fix LoginServlet.java
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import com.conn.DbConnect;
+import com.dao.UserDAO;
+
+@WebServlet("/login")
+public class LoginServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        Connection conn = DbConnect.getConn();
+        UserDAO userDao = new UserDAO(conn);
+        
+        // Get user_seq_id
+        Integer userId = userDao.getUserId(username, password);
+
+        if (userId != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute("user_seq_id", userId); // Store user ID in session
+            session.setAttribute("username", username);
+            response.sendRedirect("index.jsp");
+        } else {
+            response.sendRedirect("error.jsp");
+        }
+    }
+}
+
+2️⃣ Fix UserDAO.java (Add getUserId() method)
+
+public Integer getUserId(String username, String password) {
+    Integer userId = null;
+    try {
+        String query = "SELECT user_seq_id FROM Intso.app_user WHERE username=? AND password=?";
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, username);
+        ps.setString(2, password);
+        ResultSet rs = ps.executeQuery();
+        
+        if (rs.next()) {
+            userId = rs.getInt("user_seq_id");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return userId;
+}
+
+3️⃣ Fix AddEmployeeServlet.java
+
+In AddEmployeeServlet.java, before using session.getAttribute(), check for null:
+
+HttpSession session = request.getSession();
+Integer userId = (Integer) session.getAttribute("user_seq_id");
+
+if (userId == null) {
+    response.sendRedirect("login.jsp"); // Redirect to login if session expired
+    return;
+}
+
+Summary of Fixes
+	•	Ensure user_seq_id is stored in the session after login.
+	•	Modify AddEmployeeServlet to handle a missing session gracefully.
+
+Now restart your server and try logging in again. Let me know if the issue persists!
