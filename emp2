@@ -150,6 +150,42 @@ public class EmployeeDAO {
 
  
 }
+EditEmployeeServlet.java
+
+package com.servlet;
+import java.io.IOException;
+import java.sql.Connection;
+import com.conn.DbConnect;
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/EditEmployeeServlet")
+public class EditEmployeeServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Connection conn = DbConnect.getConn();
+        EmployeeDAO empDAO = new EmployeeDAO(conn);
+        
+        Employee emp = new Employee();
+        emp.setEmpSeqId(Integer.parseInt(request.getParameter("emp_seq_id")));
+        emp.setEmpName(request.getParameter("emp_name"));
+        emp.setEmpDeptId(Integer.parseInt(request.getParameter("emp_dept_id")));
+        emp.setEmpPerDaySal(Double.parseDouble(request.getParameter("emp_per_day_sal")));
+        emp.setStatus(request.getParameter("status"));
+        emp.setUpdatedBy(Integer.parseInt(request.getParameter("updated_by")));
+
+        if (empDAO.updateEmployee(emp)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.getWriter().write("Error updating employee.");
+        }
+    }
+}
+
 UserDAO.java
 
 package com.dao;
@@ -246,3 +282,5 @@ public class Employee {
 
 
 create all more servlet java and jsp files needed in this package to achive this functiontites and tell where to put them 
+
+EditEmployeeServlet.java is working take it as refrence a create for addemploye and other files
