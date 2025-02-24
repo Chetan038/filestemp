@@ -107,3 +107,408 @@ VALUES (INTSO.EMP_SEQ_ID.NEXTVAL, 'E102', 'Jane Smith', 2, 4500.00, 'ACTIVE', SY
 INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID, EMP_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, DT_CREATED, CREATED_BY)
 VALUES (INTSO.EMP_SEQ_ID.NEXTVAL, 'E103', 'Alice Johnson', 3, 4000.00, 'INACTIVE', SYSTIMESTAMP, 123);
 
+
+
+@@@@@@hey. newwwww
+
+
+
+Here’s how your files should be structured and what you need to create:
+
+Files to Create or Update
+
+Backend (Java - Servlets, DAO, Entities)
+	1.	com.entity.Employee.java (Entity class)
+	2.	com.dao.EmployeeDAO.java (Data Access Object for Employee)
+	3.	com.servlet.AddEmployeeServlet.java (Handles adding employees)
+	4.	com.servlet.EditEmployeeServlet.java (Handles editing employees)
+	5.	com.servlet.DeleteEmployeeServlet.java (Handles deleting employees)
+	6.	com.servlet.LogoutServlet.java (Handles logout)
+
+Frontend (JSP - UI Pages)
+	1.	index.jsp (Lists employees with Edit/Delete)
+	2.	Add_Emp.jsp (Form for adding employees)
+	3.	EditEmp.jsp (Form for editing employees)
+
+Java Backend Code
+
+1. Employee Entity (Employee.java)
+
+Save in: src/main/java/com/entity/Employee.java
+
+package com.entity;
+
+public class Employee {
+    private int empSeqId;
+    private String empName;
+    private int empDeptId;
+    private double empPerDaySal;
+    private String status;
+    private String dtCreated;
+    private int createdBy;
+    private String dtUpdated;
+    private int updatedBy;
+
+    // Getters and Setters
+    public int getEmpSeqId() { return empSeqId; }
+    public void setEmpSeqId(int empSeqId) { this.empSeqId = empSeqId; }
+
+    public String getEmpName() { return empName; }
+    public void setEmpName(String empName) { this.empName = empName; }
+
+    public int getEmpDeptId() { return empDeptId; }
+    public void setEmpDeptId(int empDeptId) { this.empDeptId = empDeptId; }
+
+    public double getEmpPerDaySal() { return empPerDaySal; }
+    public void setEmpPerDaySal(double empPerDaySal) { this.empPerDaySal = empPerDaySal; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getDtCreated() { return dtCreated; }
+    public void setDtCreated(String dtCreated) { this.dtCreated = dtCreated; }
+
+    public int getCreatedBy() { return createdBy; }
+    public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
+
+    public String getDtUpdated() { return dtUpdated; }
+    public void setDtUpdated(String dtUpdated) { this.dtUpdated = dtUpdated; }
+
+    public int getUpdatedBy() { return updatedBy; }
+    public void setUpdatedBy(int updatedBy) { this.updatedBy = updatedBy; }
+}
+
+2. Employee DAO (EmployeeDAO.java)
+
+Save in: src/main/java/com/dao/EmployeeDAO.java
+
+package com.dao;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import com.conn.DbConnect;
+import com.entity.Employee;
+
+public class EmployeeDAO {
+    private Connection conn;
+
+    public EmployeeDAO(Connection conn) { this.conn = conn; }
+
+    public boolean addEmployee(Employee emp) {
+        boolean status = false;
+        try {
+            String query = "INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, DT_CREATED, CREATED_BY) VALUES (INTSO.EMP_SEQ_ID.nextval, ?, ?, ?, ?, SYSTIMESTAMP, ?)";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, emp.getEmpName());
+            ps.setInt(2, emp.getEmpDeptId());
+            ps.setDouble(3, emp.getEmpPerDaySal());
+            ps.setString(4, emp.getStatus());
+            ps.setInt(5, emp.getCreatedBy());
+            status = ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return status;
+    }
+
+    public List<Employee> getAllEmployees() {
+        List<Employee> list = new ArrayList<>();
+        try {
+            String query = "SELECT * FROM INTSO.EMPLOYEE";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Employee emp = new Employee();
+                emp.setEmpSeqId(rs.getInt("EMP_SEQ_ID"));
+                emp.setEmpName(rs.getString("EMP_NAME"));
+                emp.setEmpDeptId(rs.getInt("EMP_DEPT_ID"));
+                emp.setEmpPerDaySal(rs.getDouble("EMP_PER_DAY_SAL"));
+                emp.setStatus(rs.getString("STATUS"));
+                emp.setDtCreated(rs.getString("DT_CREATED"));
+                emp.setCreatedBy(rs.getInt("CREATED_BY"));
+                emp.setDtUpdated(rs.getString("DT_UPDATED"));
+                emp.setUpdatedBy(rs.getInt("UPDATED_BY"));
+                list.add(emp);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public boolean deleteEmployee(int empSeqId) {
+        boolean status = false;
+        try {
+            String query = "DELETE FROM INTSO.EMPLOYEE WHERE EMP_SEQ_ID=?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, empSeqId);
+            status = ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return status;
+    }
+}
+
+3. Add Employee Servlet (AddEmployeeServlet.java)
+
+Save in: src/main/java/com/servlet/AddEmployeeServlet.java
+
+package com.servlet;
+import java.io.IOException;
+import java.sql.Connection;
+import com.conn.DbConnect;
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/addEmployee")
+public class AddEmployeeServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Connection conn = DbConnect.getConn();
+        EmployeeDAO empDAO = new EmployeeDAO(conn);
+        
+        Employee emp = new Employee();
+        emp.setEmpName(request.getParameter("emp_name"));
+        emp.setEmpDeptId(Integer.parseInt(request.getParameter("emp_dept_id")));
+        emp.setEmpPerDaySal(Double.parseDouble(request.getParameter("emp_per_day_sal")));
+        emp.setStatus(request.getParameter("status"));
+        emp.setCreatedBy(Integer.parseInt(request.getParameter("created_by")));
+
+        if (empDAO.addEmployee(emp)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.getWriter().write("Error adding employee.");
+        }
+    }
+}
+
+4. index.jsp (Displays Employees)
+
+Save in: webapp/index.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.*,com.dao.EmployeeDAO,com.conn.DbConnect,com.entity.Employee" %>
+<%
+EmployeeDAO empDAO = new EmployeeDAO(DbConnect.getConn());
+List<Employee> empList = empDAO.getAllEmployees();
+%>
+
+<table border="1">
+    <tr>
+        <th>ID</th><th>Name</th><th>Dept</th><th>Salary</th><th>Status</th><th>Actions</th>
+    </tr>
+    <% for (Employee emp : empList) { %>
+    <tr>
+        <td><%= emp.getEmpSeqId() %></td>
+        <td><%= emp.getEmpName() %></td>
+        <td><%= emp.getEmpDeptId() %></td>
+        <td><%= emp.getEmpPerDaySal() %></td>
+        <td><%= emp.getStatus() %></td>
+        <td>
+            <a href="EditEmp.jsp?id=<%= emp.getEmpSeqId() %>">Edit</a> | 
+            <a href="DeleteEmployeeServlet?id=<%= emp.getEmpSeqId() %>">Delete</a>
+        </td>
+    </tr>
+    <% } %>
+</table>
+
+This sets up your application structure. Let me know if you need more!
+
+
+
+
+
+%%%%%%
+Here are the JSP files for adding and editing employees, along with the necessary servlet files.
+
+1. Add Employee Page (Add_Emp.jsp)
+
+Save in: webapp/Add_Emp.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Add Employee</title>
+<%@include file="allcss.jsp" %>
+</head>
+<body>
+<%@include file="navbar.jsp" %>
+
+<div class="container p-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="text-center">Add Employee</h3>
+                    <form action="AddEmployeeServlet" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Employee Name</label>
+                            <input type="text" name="emp_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            <select name="emp_dept_id" class="form-control">
+                                <option value="1">IT</option>
+                                <option value="2">HR</option>
+                                <option value="3">ADMIN</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Per Day Salary</label>
+                            <input type="number" step="0.01" name="emp_per_day_sal" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-control">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Created By (User ID)</label>
+                            <input type="number" name="created_by" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <a href="index.jsp" class="btn btn-secondary">Home</a>
+                        <a href="LogoutServlet" class="btn btn-danger">Logout</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+2. Edit Employee Page (EditEmp.jsp)
+
+Save in: webapp/EditEmp.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*,com.conn.DbConnect,com.dao.EmployeeDAO,com.entity.Employee" %>
+<%
+int empId = Integer.parseInt(request.getParameter("id"));
+EmployeeDAO empDAO = new EmployeeDAO(DbConnect.getConn());
+Employee emp = empDAO.getEmployeeById(empId);
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Edit Employee</title>
+<%@include file="allcss.jsp" %>
+</head>
+<body>
+<%@include file="navbar.jsp" %>
+
+<div class="container p-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="text-center">Edit Employee</h3>
+                    <form action="EditEmployeeServlet" method="post">
+                        <input type="hidden" name="emp_seq_id" value="<%= emp.getEmpSeqId() %>">
+                        <div class="mb-3">
+                            <label class="form-label">Employee Name</label>
+                            <input type="text" name="emp_name" class="form-control" value="<%= emp.getEmpName() %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            <select name="emp_dept_id" class="form-control">
+                                <option value="1" <%= emp.getEmpDeptId() == 1 ? "selected" : "" %>>IT</option>
+                                <option value="2" <%= emp.getEmpDeptId() == 2 ? "selected" : "" %>>HR</option>
+                                <option value="3" <%= emp.getEmpDeptId() == 3 ? "selected" : "" %>>ADMIN</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Per Day Salary</label>
+                            <input type="number" step="0.01" name="emp_per_day_sal" class="form-control" value="<%= emp.getEmpPerDaySal() %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-control">
+                                <option value="Active" <%= emp.getStatus().equals("Active") ? "selected" : "" %>>Active</option>
+                                <option value="Inactive" <%= emp.getStatus().equals("Inactive") ? "selected" : "" %>>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Updated By (User ID)</label>
+                            <input type="number" name="updated_by" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Update</button>
+                        <a href="index.jsp" class="btn btn-secondary">Home</a>
+                        <a href="LogoutServlet" class="btn btn-danger">Logout</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+3. Edit Employee Servlet (EditEmployeeServlet.java)
+
+Save in: src/main/java/com/servlet/EditEmployeeServlet.java
+
+package com.servlet;
+import java.io.IOException;
+import java.sql.Connection;
+import com.conn.DbConnect;
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/EditEmployeeServlet")
+public class EditEmployeeServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Connection conn = DbConnect.getConn();
+        EmployeeDAO empDAO = new EmployeeDAO(conn);
+        
+        Employee emp = new Employee();
+        emp.setEmpSeqId(Integer.parseInt(request.getParameter("emp_seq_id")));
+        emp.setEmpName(request.getParameter("emp_name"));
+        emp.setEmpDeptId(Integer.parseInt(request.getParameter("emp_dept_id")));
+        emp.setEmpPerDaySal(Double.parseDouble(request.getParameter("emp_per_day_sal")));
+        emp.setStatus(request.getParameter("status"));
+        emp.setUpdatedBy(Integer.parseInt(request.getParameter("updated_by")));
+
+        if (empDAO.updateEmployee(emp)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.getWriter().write("Error updating employee.");
+        }
+    }
+}
+
+4. EmployeeDAO Update Method
+
+Save in: src/main/java/com/dao/EmployeeDAO.java
+
+public boolean updateEmployee(Employee emp) {
+    boolean status = false;
+    try {
+        String query = "UPDATE INTSO.EMPLOYEE SET EMP_NAME=?, EMP_DEPT_ID=?, EMP_PER_DAY_SAL=?, STATUS=?, DT_UPDATED=SYSTIMESTAMP, UPDATED_BY=? WHERE EMP_SEQ_ID=?";
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, emp.getEmpName());
+        ps.setInt(2, emp.getEmpDeptId());
+        ps.setDouble(3, emp.getEmpPerDaySal());
+        ps.setString(4, emp.getStatus());
+        ps.setInt(5, emp.getUpdatedBy());
+        ps.setInt(6, emp.getEmpSeqId());
+        status = ps.executeUpdate() > 0;
+    } catch (Exception e) { e.printStackTrace(); }
+    return status;
+}
+
+This completes the necessary JSP files and servlet logic for adding and editing employees. Let me know if you need any modifications!
+
+
+
+
