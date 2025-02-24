@@ -171,3 +171,16 @@ public class EmployeeDAO {
         return emp;
     }
 }
+
+
+$$$qurey erro 
+
+String query = "INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID,EMP_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, DT_CREATED, CREATED_BY, DT_UPDATED, UPDATED_BY) VALUES (INTSO.EMP_SEQ_ID.nextval,?, ?, ?, ?, ?, SYSTIMESTAMP, ?, SYSTIMESTAMP, ?)";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(2, emp.getEmpId());
+            ps.setString(3, emp.getEmpName());
+            ps.setInt(4, emp.getEmpDeptId());
+            ps.setDouble(5, emp.getEmpPerDaySal());
+            ps.setString(6, emp.getStatus());
+            ps.setInt(7, emp.getCreatedBy());
+            ps.setInt(8, emp.getUpdatedBy());
