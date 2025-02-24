@@ -284,3 +284,465 @@ public class Employee {
 create all more servlet java and jsp files needed in this package to achive this functiontites and tell where to put them 
 
 EditEmployeeServlet.java is working take it as refrence a create for addemploye and other files
+
+
+
+
+
+solution@@@@@@
+
+
+To include the EMP_ID field (which is of type VARCHAR), we need to update the Employee entity, DAO methods, AddEmployeeServlet, and JSP forms accordingly.
+
+1. Update Employee.java
+	•	Path: src/main/java/com/entity/Employee.java
+	•	Change: Add empId field.
+
+package com.entity;
+
+public class Employee {
+    private int empSeqId;
+    private String empId; // New Field
+    private String empName;
+    private int empDeptId;
+    private double empPerDaySal;
+    private String status;
+    private String dtCreated;
+    private int createdBy;
+    private String dtUpdated;
+    private int updatedBy;
+
+    // Getters and Setters
+    public int getEmpSeqId() { return empSeqId; }
+    public void setEmpSeqId(int empSeqId) { this.empSeqId = empSeqId; }
+
+    public String getEmpId() { return empId; }  // New Getter
+    public void setEmpId(String empId) { this.empId = empId; }  // New Setter
+
+    public String getEmpName() { return empName; }
+    public void setEmpName(String empName) { this.empName = empName; }
+
+    public int getEmpDeptId() { return empDeptId; }
+    public void setEmpDeptId(int empDeptId) { this.empDeptId = empDeptId; }
+
+    public double getEmpPerDaySal() { return empPerDaySal; }
+    public void setEmpPerDaySal(double empPerDaySal) { this.empPerDaySal = empPerDaySal; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getDtCreated() { return dtCreated; }
+    public void setDtCreated(String dtCreated) { this.dtCreated = dtCreated; }
+
+    public int getCreatedBy() { return createdBy; }
+    public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
+
+    public String getDtUpdated() { return dtUpdated; }
+    public void setDtUpdated(String dtUpdated) { this.dtUpdated = dtUpdated; }
+
+    public int getUpdatedBy() { return updatedBy; }
+    public void setUpdatedBy(int updatedBy) { this.updatedBy = updatedBy; }
+}
+
+2. Update EmployeeDAO.java
+	•	Path: src/main/java/com/dao/EmployeeDAO.java
+	•	Changes:
+	•	Modify getAllEmployees() to retrieve EMP_ID.
+	•	Modify getEmployeeById() to retrieve EMP_ID.
+	•	Modify addEmployee() to insert EMP_ID.
+
+Update getAllEmployees()
+
+public List<Employee> getAllEmployees() {
+    List<Employee> list = new ArrayList<>();
+    try {
+        String query = "SELECT * FROM INTSO.EMPLOYEE";
+        PreparedStatement ps = conn.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Employee emp = new Employee();
+            emp.setEmpSeqId(rs.getInt("EMP_SEQ_ID"));
+            emp.setEmpId(rs.getString("EMP_ID"));  // Added this line
+            emp.setEmpName(rs.getString("EMP_NAME"));
+            emp.setEmpDeptId(rs.getInt("EMP_DEPT_ID"));
+            emp.setEmpPerDaySal(rs.getDouble("EMP_PER_DAY_SAL"));
+            emp.setStatus(rs.getString("STATUS"));
+            emp.setDtCreated(rs.getString("DT_CREATED"));
+            emp.setCreatedBy(rs.getInt("CREATED_BY"));
+            emp.setDtUpdated(rs.getString("DT_UPDATED"));
+            emp.setUpdatedBy(rs.getInt("UPDATED_BY"));
+            list.add(emp);
+        }
+    } catch (Exception e) { e.printStackTrace(); }
+    return list;
+}
+
+Update getEmployeeById()
+
+public Employee getEmployeeById(int empId) {
+    Employee emp = null;
+    try {
+        String query = "SELECT * FROM INTSO.EMPLOYEE WHERE EMP_SEQ_ID=?";
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setInt(1, empId);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            emp = new Employee();
+            emp.setEmpSeqId(rs.getInt("EMP_SEQ_ID"));
+            emp.setEmpId(rs.getString("EMP_ID")); // Added this line
+            emp.setEmpName(rs.getString("EMP_NAME"));
+            emp.setEmpDeptId(rs.getInt("EMP_DEPT_ID"));
+            emp.setEmpPerDaySal(rs.getDouble("EMP_PER_DAY_SAL"));
+            emp.setStatus(rs.getString("STATUS"));
+            emp.setCreatedBy(rs.getInt("CREATED_BY"));
+            emp.setUpdatedBy(rs.getInt("UPDATED_BY"));
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return emp;
+}
+
+Update addEmployee()
+
+public boolean addEmployee(Employee emp) {
+    boolean status = false;
+    try {
+        String query = "INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID, EMP_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, DT_CREATED, CREATED_BY, DT_UPDATED, UPDATED_BY) VALUES (INTSO.EMPLOYEE_SEQ.NEXTVAL, ?, ?, ?, ?, ?, SYSTIMESTAMP, ?, SYSTIMESTAMP, ?)";
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, emp.getEmpId()); // Added EMP_ID field
+        ps.setString(2, emp.getEmpName());
+        ps.setInt(3, emp.getEmpDeptId());
+        ps.setDouble(4, emp.getEmpPerDaySal());
+        ps.setString(5, emp.getStatus());
+        ps.setInt(6, emp.getCreatedBy());
+        ps.setInt(7, emp.getUpdatedBy());
+
+        status = ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return status;
+}
+
+3. Update AddEmployeeServlet.java
+	•	Path: src/main/java/com/servlet/AddEmployeeServlet.java
+	•	Change: Capture emp_id from the request.
+
+@WebServlet("/AddEmployeeServlet")
+public class AddEmployeeServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Connection conn = DbConnect.getConn();
+        EmployeeDAO empDAO = new EmployeeDAO(conn);
+
+        Employee emp = new Employee();
+        emp.setEmpId(request.getParameter("emp_id")); // Added this line
+        emp.setEmpName(request.getParameter("emp_name"));
+        emp.setEmpDeptId(Integer.parseInt(request.getParameter("emp_dept_id")));
+        emp.setEmpPerDaySal(Double.parseDouble(request.getParameter("emp_per_day_sal")));
+        emp.setStatus(request.getParameter("status"));
+        emp.setCreatedBy(Integer.parseInt(request.getParameter("created_by")));
+        emp.setUpdatedBy(Integer.parseInt(request.getParameter("created_by")));  // Initial created by is also updated by
+
+        boolean isAdded = empDAO.addEmployee(emp);
+        if (isAdded) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.getWriter().write("Error adding employee.");
+        }
+    }
+}
+
+4. Update Add_Emp.jsp
+	•	Path: webapp/Add_Emp.jsp
+	•	Change: Add an input field for EMP_ID.
+
+<form action="AddEmployeeServlet" method="post">
+    <label>Employee ID:</label>
+    <input type="text" name="emp_id" required><br>
+
+    <label>Name:</label>
+    <input type="text" name="emp_name" required><br>
+
+    <label>Department ID:</label>
+    <input type="number" name="emp_dept_id" required><br>
+
+    <label>Per Day Salary:</label>
+    <input type="number" name="emp_per_day_sal" step="0.01" required><br>
+
+    <label>Status:</label>
+    <select name="status" required>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+    </select><br>
+
+    <label>Created By (User ID):</label>
+    <input type="number" name="created_by" required><br>
+
+    <input type="submit" value="Add Employee">
+</form>
+
+5. Update index.jsp
+	•	Change: Display EMP_ID in the table.
+
+<tr>
+    <th>ID</th>
+    <th>EMP_ID</th>  <!-- Added this column -->
+    <th>Name</th>
+    <th>Department ID</th>
+    <th>Salary</th>
+    <th>Status</th>
+    <th>Actions</th>
+</tr>
+<tr>
+    <td><%= emp.getEmpSeqId() %></td>
+    <td><%= emp.getEmpId() %></td> <!-- Added this field -->
+
+Now the EMP_ID field is properly integrated across the application. Let me know if you need any more modifications!
+
+
+
+
+@@@@2222
+
+Here are the required files with the EMP_ID field added.
+
+1. AddEmployeeServlet.java
+
+Location: src/main/java/com/servlet/
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import com.conn.DbConnect;
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/AddEmployeeServlet")
+public class AddEmployeeServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Connection conn = DbConnect.getConn();
+        EmployeeDAO empDAO = new EmployeeDAO(conn);
+
+        Employee emp = new Employee();
+        emp.setEmpId(request.getParameter("emp_id"));
+        emp.setEmpName(request.getParameter("emp_name"));
+        emp.setEmpDeptId(Integer.parseInt(request.getParameter("emp_dept_id")));
+        emp.setEmpPerDaySal(Double.parseDouble(request.getParameter("emp_per_day_sal")));
+        emp.setStatus(request.getParameter("status"));
+        emp.setCreatedBy(Integer.parseInt(request.getParameter("created_by")));
+        emp.setUpdatedBy(Integer.parseInt(request.getParameter("created_by"))); // Initially same as created by
+
+        if (empDAO.addEmployee(emp)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.getWriter().write("Error adding employee.");
+        }
+    }
+}
+
+2. DeleteEmployeeServlet.java
+
+Location: src/main/java/com/servlet/
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import com.conn.DbConnect;
+import com.dao.EmployeeDAO;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/DeleteEmployeeServlet")
+public class DeleteEmployeeServlet extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Connection conn = DbConnect.getConn();
+        EmployeeDAO empDAO = new EmployeeDAO(conn);
+
+        int empSeqId = Integer.parseInt(request.getParameter("emp_seq_id"));
+
+        if (empDAO.deleteEmployee(empSeqId)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.getWriter().write("Error deleting employee.");
+        }
+    }
+}
+
+3. EmployeeDAO.java (Updated)
+
+Location: src/main/java/com/dao/
+
+package com.dao;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import com.conn.DbConnect;
+import com.entity.Employee;
+
+public class EmployeeDAO {
+    private Connection conn;
+
+    public EmployeeDAO(Connection conn) { this.conn = conn; }
+
+    public boolean addEmployee(Employee emp) {
+        boolean status = false;
+        try {
+            String query = "INSERT INTO INTSO.EMPLOYEE (EMP_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, DT_CREATED, CREATED_BY, DT_UPDATED, UPDATED_BY) VALUES (?, ?, ?, ?, ?, SYSTIMESTAMP, ?, SYSTIMESTAMP, ?)";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, emp.getEmpId());
+            ps.setString(2, emp.getEmpName());
+            ps.setInt(3, emp.getEmpDeptId());
+            ps.setDouble(4, emp.getEmpPerDaySal());
+            ps.setString(5, emp.getStatus());
+            ps.setInt(6, emp.getCreatedBy());
+            ps.setInt(7, emp.getUpdatedBy());
+
+            status = ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return status;
+    }
+
+    public boolean deleteEmployee(int empSeqId) {
+        boolean status = false;
+        try {
+            String query = "DELETE FROM INTSO.EMPLOYEE WHERE EMP_SEQ_ID=?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, empSeqId);
+            status = ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return status;
+    }
+}
+
+4. Employee.java (Updated)
+
+Location: src/main/java/com/entity/
+
+package com.entity;
+
+public class Employee {
+    private int empSeqId;
+    private String empId;  // New field
+    private String empName;
+    private int empDeptId;
+    private double empPerDaySal;
+    private String status;
+    private String dtCreated;
+    private int createdBy;
+    private String dtUpdated;
+    private int updatedBy;
+
+    // Getters and Setters
+    public int getEmpSeqId() { return empSeqId; }
+    public void setEmpSeqId(int empSeqId) { this.empSeqId = empSeqId; }
+
+    public String getEmpId() { return empId; }
+    public void setEmpId(String empId) { this.empId = empId; }
+
+    public String getEmpName() { return empName; }
+    public void setEmpName(String empName) { this.empName = empName; }
+
+    public int getEmpDeptId() { return empDeptId; }
+    public void setEmpDeptId(int empDeptId) { this.empDeptId = empDeptId; }
+
+    public double getEmpPerDaySal() { return empPerDaySal; }
+    public void setEmpPerDaySal(double empPerDaySal) { this.empPerDaySal = empPerDaySal; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getDtCreated() { return dtCreated; }
+    public void setDtCreated(String dtCreated) { this.dtCreated = dtCreated; }
+
+    public int getCreatedBy() { return createdBy; }
+    public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
+
+    public String getDtUpdated() { return dtUpdated; }
+    public void setDtUpdated(String dtUpdated) { this.dtUpdated = dtUpdated; }
+
+    public int getUpdatedBy() { return updatedBy; }
+    public void setUpdatedBy(int updatedBy) { this.updatedBy = updatedBy; }
+}
+
+5. Add_Emp.jsp
+
+Location: webapp/
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Employee</title>
+</head>
+<body>
+    <h2>Add Employee</h2>
+    <form action="AddEmployeeServlet" method="post">
+        EMP ID: <input type="text" name="emp_id" required><br>
+        Name: <input type="text" name="emp_name" required><br>
+        Department ID: <input type="number" name="emp_dept_id" required><br>
+        Per Day Salary: <input type="text" name="emp_per_day_sal" required><br>
+        Status: <input type="text" name="status" required><br>
+        Created By (User ID): <input type="number" name="created_by" required><br>
+        <input type="submit" value="Add Employee">
+    </form>
+</body>
+</html>
+
+6. index.jsp (Updated)
+
+Location: webapp/
+
+<%@ page import="java.util.List, com.dao.EmployeeDAO, com.conn.DbConnect, com.entity.Employee" %>
+<%
+    EmployeeDAO empDAO = new EmployeeDAO(DbConnect.getConn());
+    List<Employee> empList = empDAO.getAllEmployees();
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee List</title>
+</head>
+<body>
+    <h2>Employee List</h2>
+    <table border="1">
+        <tr>
+            <th>EMP ID</th>
+            <th>Name</th>
+            <th>Department ID</th>
+            <th>Salary</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        <% for (Employee emp : empList) { %>
+        <tr>
+            <td><%= emp.getEmpId() %></td>
+            <td><%= emp.getEmpName() %></td>
+            <td><%= emp.getEmpDeptId() %></td>
+            <td><%= emp.getEmpPerDaySal() %></td>
+            <td><%= emp.getStatus() %></td>
+            <td>
+                <a href="DeleteEmployeeServlet?emp_seq_id=<%= emp.getEmpSeqId() %>">Delete</a>
+            </td>
+        </tr>
+        <% } %>
+    </table>
+    <br>
+    <a href="Add_Emp.jsp">Add Employee</a>
+</body>
+</html>
+
+Now your application supports adding and deleting employees with the EMP_ID field included.
