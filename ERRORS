@@ -100,7 +100,15 @@ Caused by: Error : 942, Position : 126, SQL = INSERT INTO INTSO.EMPLOYEE (EMP_SE
 	at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:720)
 
 
+%%%%%%%%%%%%%%%
 
+
+when i am make change and click update this ero is showing
+
+Feb 24, 2025 10:27:02 PM org.apache.catalina.core.StandardWrapperValve invoke
+SEVERE: Servlet.service() for servlet [com.servlet.EditEmployeeServlet] in context with path [/webappservlet] threw exception
+java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "jakarta.servlet.http.HttpSession.getAttribute(String)" is null
+	at com.servlet.EditEmployeeServlet.doPost(EditEmployeeServlet.java:28)
 
 INSERT INTO INTSO.EMPLOYEE (
     EMP_SEQ_ID,
