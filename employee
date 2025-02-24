@@ -1,0 +1,171 @@
+my maven project file consits of this i am create a employe mangment app
+
+make file and tell where to save it 
+
+i have a login page take the user_seq_id of that user who has logged in a session and use the value in employee table in created _by coloum and make same as upadte_by coloum(by default if no change) and if change then upadate the updated by coloum
+i have creaed a index.jsp edit make change accordingly to it which will display all the data of emplyes of from employee table and a action colum to edit delete and activate or deactive status of the employee
+i want to make a Add_Emp.jsp emploeye details page which will take the enitries from webpage and add to database with a log out button which will end the session and redirect to login.jsp and home button which will redirect to index.jsp and servlet all thing needed to it
+make a edit employe jsp servlet all thing need to edit the data here also home page button and logout button and automatically update the update_by  and Dt_upadate time(its automaticlly done timestamp)
+and department table consits of and which is linked emp_dept_id with employe table Emp_dept_id
+emp_dept_id Dept_name
+3	ADMIN
+2	HR
+1	IT
+
+file are stored in this way
+src/main/java
+com.conn->DbConnect.java
+com.dao->UserDAO.java
+com.entity
+com.servlet
+
+
+webapp
+Add_Emp.jsp(edit accordly)
+
+
+
+some already create files which are working properly and this is half project complete full project are make using reference of this files 
+
+DbConnect.java
+package com.conn;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+
+public class DbConnect {
+	private static Connection conn=null;
+	public static Connection getConn()
+	{
+		
+		
+		
+		try {
+			
+		Class.forName("oracle.jdbc.driver.OracleDriver");
+		conn=DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe","intcu","INTCU_pwd");
+		System.out.print("connnnectedddd");
+		
+     
+		
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.out.print("notconnectedddd");
+		}
+		return conn;
+	}
+	
+	
+
+}
+
+UserDAO.java
+
+package com.dao;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import com.entity.User;
+
+public class UserDAO {
+    private Connection conn;
+
+    public UserDAO(Connection conn) {
+        this.conn = conn;
+    }
+
+    // Validate user login
+    public boolean validateUser(String username, String password) {
+        boolean status = false;
+        try {
+            String query = "SELECT user_seq_id FROM Intso.app_user WHERE username=? AND password=?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, username);
+            ps.setString(2, password);
+            status = ps.executeQuery().next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return status;
+    }
+
+    // Insert new user into the database
+    public boolean registerUser(User user) {
+        boolean status = false;
+        try {
+            String query = "INSERT INTO Intso.app_user (user_seq_id, email_address, password, username) VALUES (INTSO.APP_USER_SEQ.nextval, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(query);
+           
+            ps.setString(1, user.getEmailAddress());
+            ps.setString(2, user.getPassword());
+            ps.setString(3, user.getUsername());
+           
+
+
+            int rowAffected = ps.executeUpdate();
+            status = rowAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return status;
+    }
+}
+
+
+
+
+
+Add_Emp.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<%@include file="allcss.jsp" %>
+
+</head>
+<body>
+<%@include file="navbar.jsp" %>
+
+  <div class="container p-4">
+    <div class="row">
+       <div class="col-md-6 offset-md-3">
+       <div class="card">
+       <div class="card-body">
+       <p class="fs-3 text-center">Add Employee</p>
+       </div>
+       </div>
+       </div>
+       </div>
+       </div>
+       
+       
+       <form action="" method="post">
+  <div class="mb-3">
+    <label class="form-label">Name</label>
+    <input type="text" name="name" class="form-control" >
+    </div>
+     <div class="mb-3">
+    <label class="form-label">DOB</label>
+    <input type="date" name="dob" class="form-control" >
+    </div>
+     <div class="mb-3">
+    <label class="form-label">Address</label>
+    <input type="text" name="address" class="form-control" >
+    </div>
+     <div class="mb-3">
+    <label class="form-label">qualification</label>
+    <input type="text" name="qualification" class="form-control" >
+    </div>
+    
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+       
+
+</body>
+</html> 
