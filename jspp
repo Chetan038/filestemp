@@ -91,3 +91,36 @@ public class User {
     public String getPassword() { return password; }
 }
 
+.....
+package com.dao;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import com.entity.User;
+
+public class UserDAO {
+    private Connection conn;
+
+    public UserDAO(Connection conn) {
+        this.conn = conn;
+    }
+
+    public boolean validateUser(String username, String password) {
+        boolean status = false;
+        try {
+            String query = "SELECT user_seq_id, email_address FROM Intso.app_user WHERE username=? AND password=?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                status = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return status;
+    }
+}
+
