@@ -1,2 +1,5 @@
 EROORS
 
+Feb 24, 2025 9:44:37 PM org.apache.catalina.core.StandardWrapperValve invoke
+SEVERE: Servlet.service() for servlet [com.servlet.AddEmployeeServlet] in context with path [/webappservlet] threw exception
+java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "jakarta.servlet.http.HttpSession.getAttribute(String)" is null
