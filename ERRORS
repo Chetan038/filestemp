@@ -127,3 +127,47 @@ INSERT INTO INTSO.EMPLOYEE (
     123,                      -- Created By (User ID)
     123                       -- Updated By (User ID)
 );
+
+
+
+₹₹₹₹
+
+package com.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import com.entity.Employee;
+
+public class EmployeeDAO {
+    private Connection conn;
+
+    public EmployeeDAO(Connection conn) {
+        this.conn = conn;
+    }
+
+    public Employee getEmployeeById(int empId) {
+        Employee emp = null;
+        try {
+            String query = "SELECT * FROM INTSO.EMPLOYEE WHERE EMP_SEQ_ID=?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, empId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                emp = new Employee();
+                emp.setEmpSeqId(rs.getInt("EMP_SEQ_ID"));
+                emp.setEmpName(rs.getString("EMP_NAME"));
+                emp.setEmpDeptId(rs.getInt("EMP_DEPT_ID"));
+                emp.setEmpPerDaySal(rs.getDouble("EMP_PER_DAY_SAL"));
+                emp.setStatus(rs.getString("STATUS"));
+                emp.setCreatedBy(rs.getInt("CREATED_BY"));
+                emp.setUpdatedBy(rs.getInt("UPDATED_BY"));
+                emp.setDtUpdated(rs.getTimestamp("DT_UPDATED"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return emp;
+    }
+}
