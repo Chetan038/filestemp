@@ -1,5 +1,10 @@
 EROORS
 
+Caused by: Error : 942, Position : 158, SQL = INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID, EMP_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, DT_CREATED, CREATED_BY, DT_UPDATED, UPDATED_BY) VALUES (INTSO.EMP_SEQ_ID.nextval, :1 , :2 , :3 , :4 , :5 , SYSTIMESTAMP, :6 , SYSTIMESTAMP, :7 ), Original SQL = INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID, EMP_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, DT_CREATED, CREATED_BY, DT_UPDATED, UPDATED_BY) VALUES (INTSO.EMP_SEQ_ID.nextval, ?, ?, ?, ?, ?, SYSTIMESTAMP, ?, SYSTIMESTAMP, ?), Error Message = ORA-00942: table or view does not exist
+
+	at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:720)
+@@@
+
 Feb 24, 2025 9:44:37 PM org.apache.catalina.core.StandardWrapperValve invoke
 SEVERE: Servlet.service() for servlet [com.servlet.AddEmployeeServlet] in context with path [/webappservlet] threw exception
 java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "jakarta.servlet.http.HttpSession.getAttribute(String)" is null
