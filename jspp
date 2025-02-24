@@ -65,3 +65,29 @@ logut jsp
     response.sendRedirect("login.jsp");
 %>
 
+
+
+
+
+.....
+package com.entity;
+
+public class User {
+    private int userSeqId;
+    private String username;
+    private String emailAddress;
+    private String password;
+
+    public User(int userSeqId, String username, String emailAddress, String password) {
+        this.userSeqId = userSeqId;
+        this.username = username;
+        this.emailAddress = emailAddress;
+        this.password = password;
+    }
+
+    public int getUserSeqId() { return userSeqId; }
+    public String getUsername() { return username; }
+    public String getEmailAddress() { return emailAddress; }
+    public String getPassword() { return password; }
+}
+
