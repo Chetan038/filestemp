@@ -1,1 +1,229 @@
+Here is the complete code for each new file:
 
+1. Employee.java (Entity)
+
+Path: src/main/java/com/entity/Employee.java
+
+package com.entity;
+
+public class Employee {
+    private int empSeqId;
+    private String empName;
+    private int empDeptId;
+    private double empPerDaySal;
+    private String status;
+    private int createdBy;
+    private int updatedBy;
+
+    public Employee() {}
+
+    public Employee(int empSeqId, String empName, int empDeptId, double empPerDaySal, String status, int createdBy, int updatedBy) {
+        this.empSeqId = empSeqId;
+        this.empName = empName;
+        this.empDeptId = empDeptId;
+        this.empPerDaySal = empPerDaySal;
+        this.status = status;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
+    }
+
+    public int getEmpSeqId() { return empSeqId; }
+    public void setEmpSeqId(int empSeqId) { this.empSeqId = empSeqId; }
+
+    public String getEmpName() { return empName; }
+    public void setEmpName(String empName) { this.empName = empName; }
+
+    public int getEmpDeptId() { return empDeptId; }
+    public void setEmpDeptId(int empDeptId) { this.empDeptId = empDeptId; }
+
+    public double getEmpPerDaySal() { return empPerDaySal; }
+    public void setEmpPerDaySal(double empPerDaySal) { this.empPerDaySal = empPerDaySal; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public int getCreatedBy() { return createdBy; }
+    public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
+
+    public int getUpdatedBy() { return updatedBy; }
+    public void setUpdatedBy(int updatedBy) { this.updatedBy = updatedBy; }
+}
+
+2. EmployeeDAO.java (Data Access Object)
+
+Path: src/main/java/com/dao/EmployeeDAO.java
+
+package com.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import com.entity.Employee;
+
+public class EmployeeDAO {
+    private Connection conn;
+
+    public EmployeeDAO(Connection conn) {
+        this.conn = conn;
+    }
+
+    public boolean addEmployee(Employee emp) {
+        boolean status = false;
+        try {
+            String query = "INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, CREATED_BY, UPDATED_BY) " +
+                           "VALUES (INTSO.EMP_SEQ_ID.nextval, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, emp.getEmpName());
+            ps.setInt(2, emp.getEmpDeptId());
+            ps.setDouble(3, emp.getEmpPerDaySal());
+            ps.setString(4, emp.getStatus());
+            ps.setInt(5, emp.getCreatedBy());
+            ps.setInt(6, emp.getUpdatedBy());
+
+            int rowAffected = ps.executeUpdate();
+            status = rowAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return status;
+    }
+
+    public List<Employee> getAllEmployees() {
+        List<Employee> list = new ArrayList<>();
+        try {
+            String query = "SELECT * FROM INTSO.EMPLOYEE";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Employee emp = new Employee(
+                        rs.getInt("EMP_SEQ_ID"),
+                        rs.getString("EMP_NAME"),
+                        rs.getInt("EMP_DEPT_ID"),
+                        rs.getDouble("EMP_PER_DAY_SAL"),
+                        rs.getString("STATUS"),
+                        rs.getInt("CREATED_BY"),
+                        rs.getInt("UPDATED_BY")
+                );
+                list.add(emp);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+}
+
+3. AddEmployeeServlet.java
+
+Path: src/main/java/com/servlet/AddEmployeeServlet.java
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import com.conn.DbConnect;
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+
+@WebServlet("/addEmployee")
+public class AddEmployeeServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String name = request.getParameter("name");
+        int deptId = Integer.parseInt(request.getParameter("deptId"));
+        double salary = Double.parseDouble(request.getParameter("salary"));
+        String status = "Active";
+
+        HttpSession session = request.getSession();
+        int userId = (int) session.getAttribute("userSeqId");
+
+        Employee emp = new Employee(0, name, deptId, salary, status, userId, userId);
+        Connection conn = DbConnect.getConn();
+        EmployeeDAO dao = new EmployeeDAO(conn);
+
+        if (dao.addEmployee(emp)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.sendRedirect("error.jsp");
+        }
+    }
+}
+
+4. EditEmployeeServlet.java
+
+Path: src/main/java/com/servlet/EditEmployeeServlet.java
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import com.conn.DbConnect;
+
+@WebServlet("/editEmployee")
+public class EditEmployeeServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int empId = Integer.parseInt(request.getParameter("empId"));
+        String name = request.getParameter("name");
+        int deptId = Integer.parseInt(request.getParameter("deptId"));
+        double salary = Double.parseDouble(request.getParameter("salary"));
+        
+        HttpSession session = request.getSession();
+        int userId = (int) session.getAttribute("userSeqId");
+
+        try {
+            Connection conn = DbConnect.getConn();
+            String query = "UPDATE INTSO.EMPLOYEE SET EMP_NAME=?, EMP_DEPT_ID=?, EMP_PER_DAY_SAL=?, UPDATED_BY=?, DT_UPDATED=SYSTIMESTAMP WHERE EMP_SEQ_ID=?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, name);
+            ps.setInt(2, deptId);
+            ps.setDouble(3, salary);
+            ps.setInt(4, userId);
+            ps.setInt(5, empId);
+
+            ps.executeUpdate();
+            response.sendRedirect("index.jsp");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("error.jsp");
+        }
+    }
+}
+
+5. LogoutServlet.java
+
+Path: src/main/java/com/servlet/LogoutServlet.java
+
+package com.servlet;
+
+import java.io.IOException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebServlet("/logout")
+public class LogoutServlet extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        session.invalidate();
+        response.sendRedirect("login.jsp");
+    }
+}
+
+Let me know if you need any changes!
