@@ -317,3 +317,82 @@ register.jsp
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
 </web-app>
+
+
+
+error
+
+
+Type Exception Report
+
+Message Error instantiating servlet class [com.servlet.RegisterServlet]
+
+Description The server encountered an unexpected condition that prevented it from fulfilling the request.
+
+Exception
+
+jakarta.servlet.ServletException: Error instantiating servlet class [com.servlet.RegisterServlet]
+	org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	org.apache.catalina.valves.AbstractAccessLogValve.invoke(AbstractAccessLogValve.java:663)
+	org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)
+	org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:395)
+	org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905)
+	org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1748)
+	org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1148)
+	org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+	org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	java.base/java.lang.Thread.run(Thread.java:1583)
+Root Cause
+
+java.lang.NoClassDefFoundError: javax/servlet/http/HttpServlet
+	java.base/java.lang.ClassLoader.defineClass1(Native Method)
+	java.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1027)
+	java.base/java.security.SecureClassLoader.defineClass(SecureClassLoader.java:150)
+	org.apache.catalina.loader.WebappClassLoaderBase.findClassInternal(WebappClassLoaderBase.java:2161)
+	org.apache.catalina.loader.WebappClassLoaderBase.findClass(WebappClassLoaderBase.java:695)
+	org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1183)
+	org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1053)
+	org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	org.apache.catalina.valves.AbstractAccessLogValve.invoke(AbstractAccessLogValve.java:663)
+	org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)
+	org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:395)
+	org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905)
+	org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1748)
+	org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1148)
+	org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+	org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	java.base/java.lang.Thread.run(Thread.java:1583)
+Root Cause
+
+java.lang.ClassNotFoundException: javax.servlet.http.HttpServlet
+	org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1222)
+	org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1053)
+	java.base/java.lang.ClassLoader.defineClass1(Native Method)
+	java.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1027)
+	java.base/java.security.SecureClassLoader.defineClass(SecureClassLoader.java:150)
+	org.apache.catalina.loader.WebappClassLoaderBase.findClassInternal(WebappClassLoaderBase.java:2161)
+	org.apache.catalina.loader.WebappClassLoaderBase.findClass(WebappClassLoaderBase.java:695)
+	org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1183)
+	org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1053)
+	org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	org.apache.catalina.valves.AbstractAccessLogValve.invoke(AbstractAccessLogValve.java:663)
+	org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)
+	org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:395)
+	org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905)
+	org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1748)
+	org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1148)
+	org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+	org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	java.base/java.lang.Thread.run(Thread.java:1583)
+Note The full stack trace of the root cause is available in the server logs.
+
+
