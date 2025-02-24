@@ -2,10 +2,10 @@ my maven project file consits of this i am create a employe mangment app
 
 make file and tell where to save it 
 
-i have a login page take the user_seq_id of that user who has logged in a session and use the value in employee table in created _by coloum and make same as upadte_by coloum(by default if no change) and if change then upadate the updated by coloum
-i have creaed a index.jsp edit make change accordingly to it which will display all the data of emplyes of from employee table and a action colum to edit delete and activate or deactive status of the employee
-i want to make a Add_Emp.jsp emploeye details page which will take the enitries from webpage and add to database with a log out button which will end the session and redirect to login.jsp and home button which will redirect to index.jsp and servlet all thing needed to it
-make a edit employe jsp servlet all thing need to edit the data here also home page button and logout button and automatically update the update_by  and Dt_upadate time(its automaticlly done timestamp)
+i have a login page when susscful login it take to index page
+i have creaed a index.jsp edit make change accordingly to it which will display all the data of emplyesfrom employee table and add a action colum which has edit delete when clicked delte it delte the record from table and activate or deactive status button when clicked it should change the stauts in databse according to it of the employee
+i want to make a Add_Emp.jsp emploeye details page which will take the enitries from webpage and add to database with a log out button and redirect to login.jsp and home button which will redirect to index.jsp and servlet all thing needed to it and also ask created by and update by input for storing data in colums
+make a edit employe.jsp servlet all thing need to edit the data here also home page button and logout button and the and ask input for update_by  ,Dt_upadate time(its automaticlly done timestamp)
 and department table consits of and which is linked emp_dept_id with employe table Emp_dept_id
 emp_dept_id Dept_name
 3	ADMIN
