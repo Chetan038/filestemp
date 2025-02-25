@@ -285,3 +285,88 @@ public class Toggle extends HttpServlet {
         }
     }
 }
+
+There are a few issues in your code that need to be fixed to make the status toggle functionality work correctly:
+
+Issues Identified:
+	1.	SQL Query Issue in StatusToggle() method (EmployeeDAO.java)
+	•	The query contains a syntax error: '?'. It should be ? without quotes.
+	•	DT_UPDATED should be updated to SYSTIMESTAMP and UPDATED_BY should be handled.
+	2.	Incorrect StatusToggle() method in EmployeeService.java
+	•	The method signature should accept both empSeqId and the new status.
+	3.	Servlet Issue (Toggle.java)
+	•	The servlet should determine the new status based on the current status before updating it.
+
+Fixed Code:
+
+1. Fix StatusToggle() in EmployeeDAO.java
+
+public boolean StatusToggle(int empSeqId, String newStatus, int updatedBy) {
+    boolean status = false;
+    try {
+        String query = "UPDATE INTSO.EMPLOYEE SET STATUS=?, DT_UPDATED=SYSTIMESTAMP, UPDATED_BY=? WHERE EMP_SEQ_ID=?";
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, newStatus);
+        ps.setInt(2, updatedBy);
+        ps.setInt(3, empSeqId);
+        status = ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return status;
+}
+
+2. Fix StatusToggle() in EmployeeService.java
+
+public boolean StatusToggle(int empSeqId, String currentStatus, int updatedBy) {
+    String newStatus = currentStatus.equals("ACTIVE") ? "INACTIVE" : "ACTIVE";
+    return employeeDAO.StatusToggle(empSeqId, newStatus, updatedBy);
+}
+
+3. Fix Toggle.java Servlet
+
+@WebServlet("/Toggle")
+public class Toggle extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private EmployeeService employeeService;
+
+    public Toggle() {
+        Connection conn = DbConnect.getConn();
+        this.employeeService = new EmployeeService(conn);
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int empSeqId = Integer.parseInt(request.getParameter("emp_seq_id"));
+        int updatedBy = Integer.parseInt(request.getParameter("updated_by")); // Pass the current user ID
+
+        Employee emp = employeeService.getEmployeeById(empSeqId);
+        if (emp != null) {
+            boolean success = employeeService.StatusToggle(empSeqId, emp.getStatus(), updatedBy);
+            if (success) {
+                response.sendRedirect("index.jsp");
+            } else {
+                response.getWriter().write("Error toggling employee status.");
+            }
+        } else {
+            response.getWriter().write("Employee not found.");
+        }
+    }
+}
+
+4. Update index.jsp to Call Toggle Servlet
+
+Add the following toggle button inside your employee list (index.jsp):
+
+<a href="Toggle?emp_seq_id=<%= employee.getEmpSeqId() %>&updated_by=<%= session.getAttribute("user_id") %>">
+    <button style="background-color: <%= employee.getStatus().equals("ACTIVE") ? "green" : "red" %>;">
+        <%= employee.getStatus() %>
+    </button>
+</a>
+
+Explanation:
+	•	It sends emp_seq_id and updated_by (assumed to be stored in session).
+	•	The button color changes dynamically based on status.
+
+Now the status toggle functionality will work as expected!
+
+Let me know if you need any modifications.
