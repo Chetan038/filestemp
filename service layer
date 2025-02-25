@@ -452,4 +452,239 @@ public class RegisterServlet extends HttpServlet {
 
 solution
 
+To add a service layer to your project, we will introduce a new package com.service and move business logic from DAOs into service classes. Here’s the updated package structure:
 
+com.conn       -> DbConnect.java
+com.dao        -> EmployeeDAO.java, UserDAO.java
+com.entity     -> Employee.java, User.java
+com.service    -> EmployeeService.java, UserService.java
+com.servlet    -> AddEmployeeServlet.java, DeleteEmployeeServlet.java, LoginServlet.java, RegisterServlet.java
+
+1. Create EmployeeService.java
+
+package com.service;
+
+import java.sql.Connection;
+import java.util.List;
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+
+public class EmployeeService {
+    private EmployeeDAO employeeDAO;
+
+    public EmployeeService(Connection conn) {
+        this.employeeDAO = new EmployeeDAO(conn);
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeDAO.getAllEmployees();
+    }
+
+    public Employee getEmployeeById(int empSeqId) {
+        return employeeDAO.getEmployeeById(empSeqId);
+    }
+
+    public boolean addEmployee(Employee emp) {
+        return employeeDAO.addEmployee(emp);
+    }
+
+    public boolean updateEmployee(Employee emp) {
+        return employeeDAO.updateEmployee(emp);
+    }
+
+    public boolean deleteEmployee(int empSeqId) {
+        return employeeDAO.deleteEmployee(empSeqId);
+    }
+}
+
+2. Create UserService.java
+
+package com.service;
+
+import java.sql.Connection;
+import com.dao.UserDAO;
+import com.entity.User;
+
+public class UserService {
+    private UserDAO userDAO;
+
+    public UserService(Connection conn) {
+        this.userDAO = new UserDAO(conn);
+    }
+
+    public boolean validateUser(String username, String password) {
+        return userDAO.validateUser(username, password);
+    }
+
+    public boolean registerUser(User user) {
+        return userDAO.registerUser(user);
+    }
+}
+
+3. Update AddEmployeeServlet.java
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import com.conn.DbConnect;
+import com.entity.Employee;
+import com.service.EmployeeService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/AddEmployeeServlet")
+public class AddEmployeeServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private EmployeeService employeeService;
+
+    public AddEmployeeServlet() {
+        Connection conn = DbConnect.getConn();
+        this.employeeService = new EmployeeService(conn);
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Employee emp = new Employee();
+        emp.setEmpId(request.getParameter("emp_id"));
+        emp.setEmpName(request.getParameter("emp_name"));
+        emp.setEmpDeptId(Integer.parseInt(request.getParameter("emp_dept_id")));
+        emp.setEmpPerDaySal(Double.parseDouble(request.getParameter("emp_per_day_sal")));
+        emp.setStatus(request.getParameter("status"));
+        emp.setCreatedBy(Integer.parseInt(request.getParameter("created_by")));
+        emp.setUpdatedBy(Integer.parseInt(request.getParameter("created_by"))); // Initially same as created by
+
+        if (employeeService.addEmployee(emp)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.getWriter().write("Error adding employee.");
+        }
+    }
+}
+
+4. Update DeleteEmployeeServlet.java
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import com.conn.DbConnect;
+import com.service.EmployeeService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/DeleteEmployeeServlet")
+public class DeleteEmployeeServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private EmployeeService employeeService;
+
+    public DeleteEmployeeServlet() {
+        Connection conn = DbConnect.getConn();
+        this.employeeService = new EmployeeService(conn);
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int empSeqId = Integer.parseInt(request.getParameter("emp_seq_id"));
+
+        if (employeeService.deleteEmployee(empSeqId)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.getWriter().write("Error deleting employee.");
+        }
+    }
+}
+
+5. Update LoginServlet.java
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import com.conn.DbConnect;
+import com.service.UserService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebServlet("/login")
+public class LoginServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private UserService userService;
+
+    public LoginServlet() {
+        Connection conn = DbConnect.getConn();
+        this.userService = new UserService(conn);
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        if (userService.validateUser(username, password)) {
+            HttpSession session = request.getSession();
+            session.setAttribute("user", username);
+            response.sendRedirect("index.jsp");
+        } else {
+            response.sendRedirect("error.jsp");
+        }
+    }
+}
+
+6. Update RegisterServlet.java
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import com.conn.DbConnect;
+import com.entity.User;
+import com.service.UserService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/register")
+public class RegisterServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private UserService userService;
+
+    public RegisterServlet() {
+        Connection conn = DbConnect.getConn();
+        this.userService = new UserService(conn);
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+
+        User user = new User(0, username, email, password);
+
+        if (userService.registerUser(user)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.sendRedirect("error.jsp");
+        }
+    }
+}
+
+Summary of Changes
+	1.	Introduced com.service package:
+	•	EmployeeService.java
+	•	UserService.java
+	2.	Moved business logic from Servlets into Service Layer:
+	•	Servlets now use EmployeeService and UserService instead of directly calling DAO methods.
+	3.	Updated DAO Usage:
+	•	DAO objects are now accessed through service classes, improving code maintainability and separation of concerns.
+
+Your project now follows a proper three-layer architecture (Servlet → Service → DAO), making it more scalable and maintainable. Let me know if you need further modifications!
