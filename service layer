@@ -448,3 +448,44 @@ public class RegisterServlet extends HttpServlet {
 
 
 
+₹₹₹₹₹₹
+
+solution
+
+
+package com.service;
+
+import java.sql.Connection;
+import java.util.List;
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+
+public class EmployeeService {
+    private EmployeeDAO employeeDAO;
+
+    public EmployeeService(Connection conn) {
+        this.employeeDAO = new EmployeeDAO(conn);
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeDAO.getAllEmployees();
+    }
+
+    public Employee getEmployeeById(int empSeqId) {
+        return employeeDAO.getEmployeeById(empSeqId);
+    }
+
+    public boolean addEmployee(Employee emp) {
+        return employeeDAO.addEmployee(emp);
+    }
+
+    public boolean updateEmployee(Employee emp) {
+        return employeeDAO.updateEmployee(emp);
+    }
+
+    public boolean deleteEmployee(int empSeqId) {
+        return employeeDAO.deleteEmployee(empSeqId);
+    }
+}
+
+
