@@ -1,0 +1,287 @@
+i want to add a funtionlty that when cliked on status button the status toggle with active and inactive with the button and make the changes in database also
+i have tried in the code fix it i will give the code of project 
+
+com.dao->EmployeeDAO.java
+com.entity->Employee.java
+com.service->EmployeeService.java
+com.servlet->Toggle.java
+
+fix the code and make the status button working and change should effect in data base also
+
+EmployeeDAO.java
+
+	package com.dao;
+	import java.sql.*;
+	import java.util.ArrayList;
+	import java.util.List;
+	import com.conn.DbConnect;
+	import com.entity.Employee;
+	
+	public class EmployeeDAO {
+	    private Connection conn;
+	
+	    public EmployeeDAO(Connection conn) { this.conn = conn; }
+	
+	   
+	
+	    public List<Employee> getAllEmployees() {
+	        List<Employee> list = new ArrayList<>();
+	        try {
+	            String query = "SELECT * FROM INTSO.EMPLOYEE";
+	            PreparedStatement ps = conn.prepareStatement(query);
+	            ResultSet rs = ps.executeQuery();
+	            while (rs.next()) {
+	                Employee emp = new Employee();
+	                emp.setEmpSeqId(rs.getInt("EMP_SEQ_ID"));
+	                emp.setEmpId(rs.getString("EMP_ID")); 
+	                emp.setEmpName(rs.getString("EMP_NAME"));
+	                emp.setEmpDeptId(rs.getInt("EMP_DEPT_ID"));
+	                emp.setEmpPerDaySal(rs.getDouble("EMP_PER_DAY_SAL"));
+	                emp.setStatus(rs.getString("STATUS"));
+	                emp.setDtCreated(rs.getString("DT_CREATED"));
+	                emp.setCreatedBy(rs.getInt("CREATED_BY"));
+	                emp.setDtUpdated(rs.getString("DT_UPDATED"));
+	                emp.setUpdatedBy(rs.getInt("UPDATED_BY"));
+	                list.add(emp);
+	            }
+	        } catch (Exception e) { e.printStackTrace(); }
+	        return list;
+	    }
+	    
+	    public boolean updateEmployee(Employee emp) {
+	        boolean status = false;
+	        try {
+	            String query = "UPDATE INTSO.EMPLOYEE SET EMP_NAME=?, EMP_DEPT_ID=?, EMP_PER_DAY_SAL=?, STATUS=?, DT_UPDATED=SYSTIMESTAMP, UPDATED_BY=? WHERE EMP_SEQ_ID=?";
+	            PreparedStatement ps = conn.prepareStatement(query);
+	            ps.setString(1, emp.getEmpName());
+	            ps.setInt(2, emp.getEmpDeptId());
+	            ps.setDouble(3, emp.getEmpPerDaySal());
+	            ps.setString(4, emp.getStatus());
+	            ps.setInt(5, emp.getUpdatedBy());
+	            ps.setInt(6, emp.getEmpSeqId());
+	            status = ps.executeUpdate() > 0;
+	        } catch (Exception e) { e.printStackTrace(); }
+	        return status;
+	    }
+	    
+	
+	    public boolean addEmployee(Employee emp) {
+	        boolean status = false;
+	        try {
+	        	String query = "INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID, EMP_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, DT_CREATED, CREATED_BY, DT_UPDATED, UPDATED_BY) VALUES (INTSO.EMP_SEQ_ID.nextval, ?, ?, ?, ?, ?, SYSTIMESTAMP, ?, SYSTIMESTAMP, ?)";
+	        	PreparedStatement ps = conn.prepareStatement(query);
+	
+	        	ps.setString(1, emp.getEmpId());
+	        	ps.setString(2, emp.getEmpName());
+	        	ps.setInt(3, emp.getEmpDeptId());
+	        	ps.setDouble(4, emp.getEmpPerDaySal());
+	        	ps.setString(5, emp.getStatus());
+	        	ps.setInt(6, emp.getCreatedBy());
+	        	ps.setInt(7, emp.getUpdatedBy());
+	
+	            status = ps.executeUpdate() > 0;
+	        } catch (Exception e) { e.printStackTrace(); }
+	        return status;
+	    }
+	
+	    public boolean deleteEmployee(int empSeqId) {
+	        boolean status = false;
+	        try {
+	            String query = "DELETE FROM INTSO.EMPLOYEE WHERE EMP_SEQ_ID=?";
+	            PreparedStatement ps = conn.prepareStatement(query);
+	            ps.setInt(1, empSeqId);
+	            status = ps.executeUpdate() > 0;
+	        } catch (Exception e) { e.printStackTrace(); }
+	        return status;
+	    }
+	    
+	    //toggle
+	    
+	    
+	    public boolean StatusToggle(int empSeqId,String newstatus) {
+	        boolean status = false;
+	        try {
+	            String query = "UPDATE INTSO.EMPLOYEE SET STATUS='?' WHERE EMP_SEQ_ID=?";
+	            PreparedStatement ps = conn.prepareStatement(query);
+	            ps.setString(1, newstatus);
+	            ps.setInt(2, empSeqId);
+	            status = ps.executeUpdate() > 0;
+	        } catch (Exception e) { e.printStackTrace(); }
+	        return status;
+	    }
+	    //
+	    
+	    
+	
+	    public Employee getEmployeeById(int empId) {
+	        Employee emp = null;
+	        try {
+	            String query = "SELECT * FROM INTSO.EMPLOYEE WHERE EMP_SEQ_ID=?";
+	            PreparedStatement ps = conn.prepareStatement(query);
+	            ps.setInt(1, empId);
+	            ResultSet rs = ps.executeQuery();
+	
+	            if (rs.next()) {
+	                emp = new Employee();
+	                emp.setEmpSeqId(rs.getInt("EMP_SEQ_ID"));
+	                emp.setEmpId(rs.getString("EMP_ID")); 
+	                emp.setEmpName(rs.getString("EMP_NAME"));
+	                emp.setEmpDeptId(rs.getInt("EMP_DEPT_ID"));
+	                emp.setEmpPerDaySal(rs.getDouble("EMP_PER_DAY_SAL"));
+	                emp.setStatus(rs.getString("STATUS"));
+	                emp.setCreatedBy(rs.getInt("CREATED_BY"));
+	                emp.setUpdatedBy(rs.getInt("UPDATED_BY"));
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        return emp;
+	    }
+	
+	
+	 
+	}
+Employee.java
+
+package com.entity;
+
+public class Employee {
+    private int empSeqId;
+    private String empId; 
+    private String empName;
+    private int empDeptId;
+    private double empPerDaySal;
+    private String status;
+    private String dtCreated;
+    private int createdBy;
+    private String dtUpdated;
+    private int updatedBy;
+
+    // Getters and Setters
+    public int getEmpSeqId() { return empSeqId; }
+    public void setEmpSeqId(int empSeqId) { this.empSeqId = empSeqId; }
+
+    public String getEmpId() { return empId; }
+    public void setEmpId(String empId) { this.empId = empId; }
+
+    public String getEmpName() { return empName; }
+    public void setEmpName(String empName) { this.empName = empName; }
+
+    public int getEmpDeptId() { return empDeptId; }
+    public void setEmpDeptId(int empDeptId) { this.empDeptId = empDeptId; }
+
+    public double getEmpPerDaySal() { return empPerDaySal; }
+    public void setEmpPerDaySal(double empPerDaySal) { this.empPerDaySal = empPerDaySal; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getDtCreated() { return dtCreated; }
+    public void setDtCreated(String dtCreated) { this.dtCreated = dtCreated; }
+
+    public int getCreatedBy() { return createdBy; }
+    public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
+
+    public String getDtUpdated() { return dtUpdated; }
+    public void setDtUpdated(String dtUpdated) { this.dtUpdated = dtUpdated; }
+
+    public int getUpdatedBy() { return updatedBy; }
+    public void setUpdatedBy(int updatedBy) { this.updatedBy = updatedBy; }
+}
+
+EmployeeService.java
+
+package com.service;
+
+import java.sql.Connection;
+import java.util.List;
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+
+public class EmployeeService {
+    private EmployeeDAO employeeDAO;
+
+    public EmployeeService(Connection conn) {
+        this.employeeDAO = new EmployeeDAO(conn);
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeDAO.getAllEmployees();
+    }
+
+    public Employee getEmployeeById(int empSeqId) {
+        return employeeDAO.getEmployeeById(empSeqId);
+    }
+
+    public boolean addEmployee(Employee emp) {
+    	
+    	 // Validation: Check if Employee ID and Name are not empty
+        if (emp.getEmpId() == null || emp.getEmpId().trim().isEmpty() ||
+            emp.getEmpName() == null || emp.getEmpName().trim().isEmpty()) {
+            return false; 
+        }
+
+        // Default value: If status is not provided, set "ACTIVE"
+        if (emp.getStatus() != "ACTIVE" || emp.getStatus().trim().isEmpty()) {
+            emp.setStatus("ACTIVE");
+        }
+        
+     
+
+        return employeeDAO.addEmployee(emp);
+        
+    }
+    
+    
+
+
+
+	public boolean updateEmployee(Employee emp) {
+        return employeeDAO.updateEmployee(emp);
+    }
+	
+	
+	
+
+	 public boolean StatusToggle(int empSeqId) {
+        return employeeDAO.StatusToggle(empSeqId);
+    }
+    public boolean deleteEmployee(int empSeqId) {
+        return employeeDAO.deleteEmployee(empSeqId);
+    }
+}
+
+Toggle.java
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import com.conn.DbConnect;
+import com.service.EmployeeService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/Toggle")
+public class Toggle extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private EmployeeService employeeService;
+
+    public Toggle() {
+        Connection conn = DbConnect.getConn();
+        this.employeeService = new EmployeeService(conn);
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int empSeqId = Integer.parseInt(request.getParameter("emp_seq_id"));
+
+        if (employeeService.StatusToggle(empSeqId)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.getWriter().write("Error toggling employee.");
+        }
+    }
+}
