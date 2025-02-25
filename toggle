@@ -1,1 +1,129 @@
 
+
+
+Below is one way to implement this. The idea is to add a method in your service layer (and its corresponding DAO method) that:
+	1.	Retrieves the current employee’s status.
+	2.	Toggles the status from “ACTIVE” to “DEACTIVE” (or vice versa).
+	3.	Updates the record in the database.
+
+Step 1. Update EmployeeDAO.java
+
+Add a new method in your DAO class to update only the status:
+
+public boolean updateEmployeeStatus(int empSeqId, String newStatus, int updatedBy) {
+    boolean status = false;
+    try {
+        String query = "UPDATE INTSO.EMPLOYEE SET STATUS = ?, DT_UPDATED = SYSTIMESTAMP, UPDATED_BY = ? WHERE EMP_SEQ_ID = ?";
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, newStatus);
+        ps.setInt(2, updatedBy);  // Pass the user id who updated; you might get this from the session.
+        ps.setInt(3, empSeqId);
+        status = ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return status;
+}
+
+Step 2. Update EmployeeService.java
+
+Add a new business logic method that toggles the status:
+
+package com.service;
+
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+import com.conn.DbConnect;
+import java.sql.Connection;
+
+public class EmployeeService {
+    private EmployeeDAO employeeDAO;
+
+    public EmployeeService() {
+        Connection conn = DbConnect.getConn();
+        this.employeeDAO = new EmployeeDAO(conn);
+    }
+
+    // ... other methods (add, update, delete, etc.) ...
+
+    /**
+     * Toggle employee status between ACTIVE and DEACTIVE.
+     * @param empSeqId The unique id of the employee.
+     * @param updatedBy The id of the user making the change.
+     * @return true if the update was successful; false otherwise.
+     */
+    public boolean toggleEmployeeStatus(int empSeqId, int updatedBy) {
+        // First, get the current employee data
+        Employee emp = employeeDAO.getEmployeeById(empSeqId);
+        if (emp == null) {
+            return false; // Employee not found
+        }
+
+        // Determine the new status based on current status
+        String currentStatus = emp.getStatus();
+        String newStatus = "ACTIVE";
+        if (currentStatus != null && currentStatus.equalsIgnoreCase("ACTIVE")) {
+            newStatus = "DEACTIVE";
+        }
+
+        // Update the status in the database
+        return employeeDAO.updateEmployeeStatus(empSeqId, newStatus, updatedBy);
+    }
+}
+
+Step 3. Using This in Your JSP/Servlet
+
+In your index.jsp (or through a dedicated servlet), you can include a button for each row that calls a servlet (for example, ToggleStatusServlet) with the empSeqId and, if needed, the updatedBy value (which might come from the current session).
+
+For example, your servlet could be:
+
+package com.servlet;
+
+import java.io.IOException;
+import com.service.EmployeeService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/toggleStatus")
+public class ToggleStatusServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private EmployeeService employeeService;
+
+    public ToggleStatusServlet() {
+        this.employeeService = new EmployeeService();
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Assuming empSeqId and updatedBy are passed as parameters.
+        int empSeqId = Integer.parseInt(request.getParameter("emp_seq_id"));
+        int updatedBy = Integer.parseInt(request.getParameter("updated_by")); // Alternatively, get from session
+
+        if (employeeService.toggleEmployeeStatus(empSeqId, updatedBy)) {
+            response.sendRedirect("index.jsp");
+        } else {
+            response.getWriter().write("Error toggling employee status.");
+        }
+    }
+}
+
+In index.jsp, the button might look like:
+
+<!-- For each employee row, include a button like: -->
+<form action="toggleStatus" method="get">
+    <input type="hidden" name="emp_seq_id" value="${employee.empSeqId}" />
+    <!-- Optionally, pass updated_by (or determine in the servlet from session) -->
+    <input type="hidden" name="updated_by" value="${sessionScope.userId}" />
+    <button type="submit">
+        Toggle Status (Current: ${employee.status})
+    </button>
+</form>
+
+Summary
+	•	DAO Layer: A new method updateEmployeeStatus is added to update only the status.
+	•	Service Layer: A method toggleEmployeeStatus encapsulates the business logic—retrieving the current status, determining the new status, and calling the DAO method to update.
+	•	Servlet/JSP: The UI calls a servlet that invokes this service method, thereby toggling the employee’s status between active and deactive.
+
+This design keeps your business logic centralized in the service layer, making future changes easier and ensuring that the servlet remains lightweight.
