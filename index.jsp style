@@ -201,3 +201,27 @@ solution
 </body>
 </html>
 
+for add emp jsp
+
+make similar them for this code also
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Employee</title>
+</head>
+<body>
+    <h2>Add Employee</h2>
+    <form action="AddEmployeeServlet" method="post">
+        EMP ID: <input type="text" name="emp_id" required><br>
+        Name: <input type="text" name="emp_name" required><br>
+        Department ID: <input type="number" name="emp_dept_id" required><br>
+        Per Day Salary: <input type="text" name="emp_per_day_sal" required><br>
+        Status: <input type="text" name="status" required><br>
+        Created By (User ID): <input type="number" name="created_by" required><br>
+        <input type="submit" value="Add Employee">
+    </form>
+</body>
+</html>
+
