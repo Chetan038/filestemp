@@ -32,6 +32,7 @@ there is promeble in box formataing it not formated properlyfix the foramting do
         /* Table Styling */
         table {
             width: 110%;
+
             margin: auto;
             border-collapse: collapse;
             background: #fff;
@@ -533,4 +534,199 @@ solution2
 
 </body>
 </html>
+
+
+@@@@solution
+
+<%@ page import="java.util.List, com.dao.EmployeeDAO, com.conn.DbConnect, com.entity.Employee" %>
+<%
+    EmployeeDAO empDAO = new EmployeeDAO(DbConnect.getConn());
+    List<Employee> empList = empDAO.getAllEmployees();
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee List</title>
+    
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            text-align: center;
+            padding: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        h2 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Table Styling */
+        .table-container {
+            width: 90%;
+            margin: auto;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #4CAF50;
+            color: white;
+            font-size: 18px;
+        }
+
+        tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+
+        tr:hover {
+            background: #ddd;
+            transition: 0.3s ease-in-out;
+        }
+
+        /* Button Styling */
+        a {
+            display: inline-block;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            transition: background 0.3s ease-in-out;
+            margin: 2px;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .edit-btn {
+            background: #f39c12;
+        }
+
+        .edit-btn:hover {
+            background: #e67e22;
+        }
+
+        .status-btn {
+            background: #8e44ad;
+        }
+
+        .status-btn:hover {
+            background: #732d91;
+        }
+
+        .add-btn {
+            background: #2ecc71;
+        }
+
+        .add-btn:hover {
+            background: #27ae60;
+        }
+
+        .logout-btn {
+            background: #3498db;
+        }
+
+        .logout-btn:hover {
+            background: #2980b9;
+        }
+
+        /* Page Load Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Table */
+        @media screen and (max-width: 768px) {
+            th, td {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            a {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Employee List</h2>
+    
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>EMP ID</th>
+                <th>Name</th>
+                <th>Department ID</th>
+                <th>Salary/Day</th>
+                <th>Created By</th>
+                <th>Created On</th>
+                <th>Updated By</th>
+                <th>Updated On</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            <% for (Employee emp : empList) { %>
+            <tr>
+                <td><%= emp.getEmpId() %></td>
+                <td><%= emp.getEmpName() %></td>
+                <td><%= emp.getEmpDeptId() %></td>
+                <td><%= emp.getEmpPerDaySal() %></td>
+                <td><%= emp.getCreatedBy() %></td>
+                <td><%= emp.getDtCreated() %></td>
+                <td><%= emp.getUpdatedBy() %></td>
+                <td><%= emp.getDtUpdated() %></td>
+                <td><%= emp.getStatus() %></td>
+                <td>
+                    <a href="DeleteEmployeeServlet?emp_seq_id=<%= emp.getEmpSeqId() %>" class="delete-btn">Delete</a>
+                    <a href="EditEmp.jsp" class="edit-btn">Edit</a>
+                    <a href="StatusServlet?emp_seq_id=<%= emp.getEmpSeqId() %>" class="status-btn">Status</a>
+                </td>
+            </tr>
+            <% } %>
+        </table>
+    </div>
+
+    <br>
+    <a href="Add_Emp.jsp" class="add-btn">Add Employee</a>
+    <a href="logout.jsp" class="logout-btn">Logout</a>
+
+</body>
+</html>
+
 
