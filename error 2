@@ -1,0 +1,83 @@
+this error is coming in EditEmp.jsp
+
+fix this 
+
+Feb 25, 2025 12:53:10 PM org.apache.catalina.core.StandardWrapperValve invoke
+SEVERE: Servlet.service() for servlet [jsp] in context with path [/webappservlet] threw exception [An exception occurred processing [/EditEmp.jsp] at line [4]
+
+1: <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+2: <%@ page import="java.sql.*,com.conn.DbConnect,com.dao.EmployeeDAO,com.entity.Employee" %>
+3: <%
+4: int empId = Integer.parseInt(request.getParameter("id"));
+5: EmployeeDAO empDAO = new EmployeeDAO(DbConnect.getConn());
+6: Employee emp = empDAO.getEmployeeById(empId);
+7: %>
+
+
+Stacktrace:] with root cause
+java.lang.NumberFormatException: Cannot parse null string
+
+EditEmp.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*,com.conn.DbConnect,com.dao.EmployeeDAO,com.entity.Employee" %>
+<%
+int empId = Integer.parseInt(request.getParameter("id"));
+EmployeeDAO empDAO = new EmployeeDAO(DbConnect.getConn());
+Employee emp = empDAO.getEmployeeById(empId);
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Edit Employee</title>
+<%@include file="allcss.jsp" %>
+</head>
+<body>
+<%@include file="navbar.jsp" %>
+
+<div class="container p-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="text-center">Edit Employee</h3>
+                    <form action="EditEmployeeServlet" method="post">
+                        <input type="hidden" name="emp_seq_id" value="<%= emp.getEmpSeqId() %>">
+                        <div class="mb-3">
+                            <label class="form-label">Employee Name</label>
+                            <input type="text" name="emp_name" class="form-control" value="<%= emp.getEmpName() %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            <select name="emp_dept_id" class="form-control">
+                                <option value="1" <%= emp.getEmpDeptId() == 1 ? "selected" : "" %>>IT</option>
+                                <option value="2" <%= emp.getEmpDeptId() == 2 ? "selected" : "" %>>HR</option>
+                                <option value="3" <%= emp.getEmpDeptId() == 3 ? "selected" : "" %>>ADMIN</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Per Day Salary</label>
+                            <input type="number" step="0.01" name="emp_per_day_sal" class="form-control" value="<%= emp.getEmpPerDaySal() %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-control">
+                                <option value="Active" <%= emp.getStatus().equals("Active") ? "selected" : "" %>>Active</option>
+                                <option value="Inactive" <%= emp.getStatus().equals("Inactive") ? "selected" : "" %>>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Updated By (User ID)</label>
+                            <input type="number" name="updated_by" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Update</button>
+                        <a href="index.jsp" class="btn btn-secondary">Home</a>
+                        <a href="LogoutServlet" class="btn btn-danger">Logout</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
