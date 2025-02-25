@@ -223,3 +223,106 @@ make funtionality according to above code files
 
  
 }
+
+
+
+solution
+
+
+Steps to Implement Toggle Status Functionality:
+	1.	Add a Toggle Button in index.jsp
+	•	This button will change the employee’s status between “Active” and “Inactive.”
+	•	It will call a servlet (ToggleStatusServlet.java) with the employee’s ID.
+	2.	Create ToggleStatusServlet.java
+	•	This servlet will:
+	•	Retrieve the current status of the employee.
+	•	Toggle it to the opposite value.
+	•	Update the database.
+	3.	Modify EmployeeDAO.java
+	•	Add a method to update the employee’s status.
+
+1. Modify index.jsp (Add Toggle Button)
+
+Update the Actions column in the table:
+
+<td>
+    <a href="DeleteEmployeeServlet?emp_seq_id=<%= emp.getEmpSeqId() %>">Delete</a>
+    <a href="EditEmp.jsp">Edit</a>
+    <a href="ToggleStatusServlet?emp_seq_id=<%= emp.getEmpSeqId() %>&current_status=<%= emp.getStatus() %>">
+        <button><%= emp.getStatus().equals("Active") ? "Deactivate" : "Activate" %></button>
+    </a>
+</td>
+
+	•	If the employee’s status is Active, the button shows “Deactivate.”
+	•	If the status is Inactive, the button shows “Activate.”
+
+2. Create ToggleStatusServlet.java
+
+Add a new servlet to handle status updates.
+
+src/main/java/com/servlet/ToggleStatusServlet.java
+
+package com.servlet;
+
+import com.dao.EmployeeDAO;
+import com.conn.DbConnect;
+import java.io.IOException;
+import java.sql.Connection;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/ToggleStatusServlet")
+public class ToggleStatusServlet extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            int empSeqId = Integer.parseInt(request.getParameter("emp_seq_id"));
+            String currentStatus = request.getParameter("current_status");
+
+            // Toggle status
+            String newStatus = currentStatus.equalsIgnoreCase("Active") ? "Inactive" : "Active";
+
+            Connection conn = DbConnect.getConn();
+            EmployeeDAO empDAO = new EmployeeDAO(conn);
+            boolean success = empDAO.updateEmployeeStatus(empSeqId, newStatus);
+
+            if (success) {
+                response.sendRedirect("index.jsp"); // Refresh the page
+            } else {
+                response.getWriter().println("Error updating status.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+3. Modify EmployeeDAO.java
+
+Add the method to update the employee’s status.
+
+Update src/main/java/com/dao/EmployeeDAO.java
+
+public boolean updateEmployeeStatus(int empSeqId, String status) {
+    boolean updated = false;
+    try {
+        String query = "UPDATE INTSO.EMPLOYEE SET STATUS=?, DT_UPDATED=SYSTIMESTAMP WHERE EMP_SEQ_ID=?";
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, status);
+        ps.setInt(2, empSeqId);
+        updated = ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return updated;
+}
+
+Now, When You Click the Button:
+	1.	The ToggleStatusServlet gets the employee ID and current status.
+	2.	It switches the status (Active ↔ Inactive).
+	3.	It updates the database.
+	4.	The page reloads to reflect the change.
+
+This will successfully implement the toggle status button!
