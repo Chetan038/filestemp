@@ -127,3 +127,32 @@ Summary
 	•	Servlet/JSP: The UI calls a servlet that invokes this service method, thereby toggling the employee’s status between active and deactive.
 
 This design keeps your business logic centralized in the service layer, making future changes easier and ensuring that the servlet remains lightweight.
+
+
+???
+
+package com.service;
+
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+import com.conn.DbConnect;
+import java.sql.Connection;
+
+public class EmployeeService {
+    private EmployeeDAO employeeDAO;
+
+    public EmployeeService() {
+        Connection conn = DbConnect.getConn();
+        this.employeeDAO = new EmployeeDAO(conn);
+    }
+
+    // Method to add an employee with department ID validation
+    public String addEmployee(Employee emp) {
+        if (emp.getEmpDeptId() > 3) {
+            return "Department ID must be 3 or less.";
+        }
+
+        boolean isAdded = employeeDAO.addEmployee(emp);
+        return isAdded ? "Employee added successfully." : "Error adding employee.";
+    }
+}
