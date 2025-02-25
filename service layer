@@ -688,3 +688,77 @@ Summary of Changes
 	•	DAO objects are now accessed through service classes, improving code maintainability and separation of concerns.
 
 Your project now follows a proper three-layer architecture (Servlet → Service → DAO), making it more scalable and maintainable. Let me know if you need further modifications!
+
+
+
+|||||||||
+package com.service;
+
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+import com.conn.DbConnect;
+
+import java.sql.Connection;
+import java.util.List;
+
+public class EmployeeService {
+    private EmployeeDAO employeeDAO;
+
+    public EmployeeService() {
+        Connection conn = DbConnect.getConn();
+        this.employeeDAO = new EmployeeDAO(conn);
+    }
+
+    // Business logic to add employee
+    public boolean addEmployee(Employee emp) {
+        // Validation: Check if Employee ID and Name are not empty
+        if (emp.getEmpId() == null || emp.getEmpId().trim().isEmpty() ||
+            emp.getEmpName() == null || emp.getEmpName().trim().isEmpty()) {
+            return false; // Invalid data
+        }
+
+        // Default value: If status is not provided, set "ACTIVE"
+        if (emp.getStatus() == null || emp.getStatus().trim().isEmpty()) {
+            emp.setStatus("ACTIVE");
+        }
+
+        return employeeDAO.addEmployee(emp);
+    }
+
+    // Business logic to update employee
+    public boolean updateEmployee(Employee emp) {
+        // Ensure valid ID
+        if (emp.getEmpSeqId() <= 0) {
+            return false; // Invalid ID
+        }
+
+        // Ensure salary is not negative
+        if (emp.getEmpPerDaySal() < 0) {
+            return false; // Invalid salary
+        }
+
+        return employeeDAO.updateEmployee(emp);
+    }
+
+    // Business logic to delete employee
+    public boolean deleteEmployee(int empSeqId) {
+        if (empSeqId <= 0) {
+            return false; // Invalid ID
+        }
+        return employeeDAO.deleteEmployee(empSeqId);
+    }
+
+    // Retrieve all employees
+    public List<Employee> getAllEmployees() {
+        return employeeDAO.getAllEmployees();
+    }
+
+    // Retrieve a single employee by ID
+    public Employee getEmployeeById(int empSeqId) {
+        if (empSeqId <= 0) {
+            return null; // Invalid ID
+        }
+        return employeeDAO.getEmployeeById(empSeqId);
+    }
+}
+
