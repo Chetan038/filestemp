@@ -1,6 +1,7 @@
-action
+i want to make a  button  in action tab which activates and deactives the status tab to active and deactive when clicked
+and save the changes in the database of that record 
 
-
+this is my files
 
 src/main/java
 com.conn
@@ -221,3 +222,4 @@ make funtionality according to above code files
 
 
  
+}
