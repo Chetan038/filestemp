@@ -1,0 +1,45 @@
+design this page with cool stylish webpage with roudned and animation on load page and add css in page only
+
+<%@ page import="java.util.List, com.dao.EmployeeDAO, com.conn.DbConnect, com.entity.Employee" %>
+<%
+    EmployeeDAO empDAO = new EmployeeDAO(DbConnect.getConn());
+    List<Employee> empList = empDAO.getAllEmployees();
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee List</title>
+</head>
+<body>
+    <h2>Employee List</h2>
+    <table border="1">
+        <tr>
+            <th>EMP ID</th>
+            <th>Name</th>
+            <th>Department ID</th>
+            <th>Salary</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        <% for (Employee emp : empList) { %>
+        <tr>
+            <td><%= emp.getEmpId() %></td>
+            <td><%= emp.getEmpName() %></td>
+            <td><%= emp.getEmpDeptId() %></td>
+            <td><%= emp.getEmpPerDaySal() %></td>
+            <td><%= emp.getStatus() %></td>
+            <td>
+                <a href="DeleteEmployeeServlet?emp_seq_id=<%= emp.getEmpSeqId() %>">Delete</a>
+                 <a href="EditEmp.jsp">Edit</a>
+                  
+        
+            </td>
+        </tr>
+        <% } %>
+    </table>
+    <br>
+    <a href="Add_Emp.jsp">Add Employee</a>
+     <a href="lougut.jsp">Logout</a>
+      
+</body>
+</html>
