@@ -1,1 +1,109 @@
+Service Layer in Your Project
 
+The service layer acts as an intermediary between the DAO (Data Access Object) layer and the servlet/controller layer. It contains business logic and ensures that data processing is handled efficiently before interacting with the database. This layer helps in:
+	•	Reducing code duplication
+	•	Keeping business logic separate from database operations
+	•	Improving maintainability and scalability
+
+You can create a new package:
+
+com.service
+	•	This package will contain service classes responsible for business logic.
+	•	It will call EmployeeDAO methods and process the data before sending it to servlets.
+
+Updated Package Structure & Explanation
+	1.	com.conn (Database Connection Layer)
+	•	Purpose: Manages database connections.
+	•	Files:
+	•	DbConnect.java → Establishes and provides a connection to the Oracle database.
+	2.	com.dao (Data Access Layer)
+	•	Purpose: Handles database operations such as insert, update, delete, and fetch.
+	•	Files:
+	•	UserDAO.java → Handles user-related database operations.
+	•	EmployeeDAO.java → Handles CRUD operations for employees.
+	3.	com.entity (Model Layer)
+	•	Purpose: Contains Java classes that represent database tables.
+	•	Files:
+	•	Employee.java → Represents the EMPLOYEE table with fields like EMP_ID, NAME, STATUS, CREATED_BY, etc.
+	4.	com.service (Business Logic Layer)
+	•	Purpose: Contains business logic and communicates between DAO and Servlets.
+	•	Files:
+	•	EmployeeService.java → Calls EmployeeDAO methods and applies business logic before returning data to servlets.
+	5.	com.servlet (Controller Layer)
+	•	Purpose: Handles HTTP requests, interacts with EmployeeService, and forwards data to JSP pages.
+	•	Files:
+	•	LoginServlet.java
+	•	AddEmployeeServlet.java
+	•	EditEmployeeServlet.java
+	•	DeleteEmployeeServlet.java
+	•	LogoutServlet.java
+
+Example: EmployeeService.java
+
+package com.service;
+
+import com.dao.EmployeeDAO;
+import com.entity.Employee;
+import java.util.List;
+
+public class EmployeeService {
+    private EmployeeDAO employeeDAO;
+
+    public EmployeeService() {
+        this.employeeDAO = new EmployeeDAO();
+    }
+
+    public boolean addEmployee(Employee emp) {
+        // Business logic: Ensure the employee status is active by default
+        emp.setStatus("Active");
+        return employeeDAO.addEmployee(emp);
+    }
+
+    public boolean updateEmployee(Employee emp) {
+        // Business logic: Update employee details before saving
+        emp.setDtUpdate(new java.sql.Timestamp(System.currentTimeMillis()));
+        return employeeDAO.updateEmployee(emp);
+    }
+
+    public boolean deleteEmployee(String empId) {
+        return employeeDAO.deleteEmployee(empId);
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeDAO.getAllEmployees();
+    }
+
+    public Employee getEmployeeById(String empId) {
+        return employeeDAO.getEmployeeById(empId);
+    }
+
+    public boolean toggleEmployeeStatus(String empId, String status) {
+        return employeeDAO.updateEmployeeStatus(empId, status);
+    }
+}
+
+How Servlets Will Use This Service
+
+protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    EmployeeService employeeService = new EmployeeService();
+    Employee emp = new Employee();
+    emp.setEmpId(request.getParameter("empId"));
+    emp.setName(request.getParameter("name"));
+    emp.setCreatedBy(request.getParameter("createdBy"));
+    emp.setUpdatedBy(request.getParameter("updatedBy"));
+
+    boolean success = employeeService.addEmployee(emp);
+    if (success) {
+        response.sendRedirect("index.jsp");
+    } else {
+        request.setAttribute("error", "Failed to add employee");
+        request.getRequestDispatcher("Add_Emp.jsp").forward(request, response);
+    }
+}
+
+Benefits of Service Layer
+	•	Code Reusability: The service layer prevents writing duplicate logic in servlets.
+	•	Separation of Concerns: Keeps business logic separate from database operations.
+	•	Easier Testing: You can write unit tests for the service layer without needing servlets.
+
+This structure makes your application more maintainable and scalable. Let me know if you need modifications or additional explanations!
