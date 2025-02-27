@@ -1,46 +1,10 @@
-this is webpage 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-</head>
-<body>
-    <h2>User Registration</h2>
-    <form action="register" method="post">
-        <label>Username:</label>
-        <input type="text" name="username" required><br>
-        <label>Email Address:</label>
-        <input type="email" name="email" required><br>
-        <label>Password:</label>
-        <input type="password" name="password" required><br>
-        <input type="submit" value="Register" href="login.jsp">
-    </form>
-    <p>Already have an account? <a href="login.jsp">Login here</a></p>
-</body>
-</html>
-
-
-make them style like below webpage maintain them like below wepage
-
-
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%
-    HttpSession sessionn = request.getSession(false);
-    if (sessionn == null || sessionn.getAttribute("username") == null) {
-        response.sendRedirect("login.jsp"); // Redirect to login if session is not valid
-        return;
-    }
-    
-    int userId=(int)sessionn.getAttribute("user_seq_id");
-%>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Employee</title>
+    <title>User Registration</title>
 
     <style>
         /* General Styling */
@@ -76,7 +40,7 @@ make them style like below webpage maintain them like below wepage
             margin-top: 10px;
         }
 
-        input, select {
+        input {
             width: 100%;
             padding: 8px;
             margin-top: 5px;
@@ -86,7 +50,7 @@ make them style like below webpage maintain them like below wepage
             transition: 0.3s ease-in-out;
         }
 
-        input:focus, select:focus {
+        input:focus {
             border-color: #4CAF50;
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
             outline: none;
@@ -144,38 +108,24 @@ make them style like below webpage maintain them like below wepage
 </head>
 <body>
 
-    <h2>Add Employee</h2>
+    <h2>User Registration</h2>
 
     <div class="form-container">
-        <form action="AddEmployeeServlet" method="post" onsubmit="return validateform()">
-            <label>EMP ID:</label>
-            <input type="text" name="emp_id"  required>
+        <form action="register" method="post">
+            <label>Username:</label>
+            <input type="text" name="username" required>
 
-            <label>Name:</label>
-            <input type="text" name="emp_name" required>
+            <label>Email Address:</label>
+            <input type="email" name="email" required>
 
-            <label>Department ID:</label>
-            <input type="number" id="emp_dept_id" name="emp_dept_id" required>
+            <label>Password:</label>
+            <input type="password" name="password" required>
 
-            <label>Per Day Salary:</label>
-            <input type="text" name="emp_per_day_sal" required>
-
-            <label>Status:</label>
-            <select name="status" required>
-            <option value="Active">Active</option>
-            <option value="InActive">InActive</option>
-            </select>
-              
-            <label>Created By (User ID):</label>
-            <input type="number" name="created_by" value=<%=userId%> readonly>
-
-            <input type="submit" value="Add Employee" class="submit-btn">
+            <input type="submit" value="Register" class="submit-btn">
         </form>
-        <a href="index.jsp" class="back-btn">Back to Employee List</a>
+
+        <a href="login.jsp" class="back-btn">Already have an account? Login here</a>
     </div>
-    
- 
 
 </body>
 </html>
-
