@@ -1,0 +1,103 @@
+this is UserDAO.java
+
+package com.dao;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import com.entity.User;
+
+public class UserDAO {
+    private Connection conn;
+
+    public UserDAO(Connection conn) {
+        this.conn = conn;
+    }
+	
+
+    // Validate user login
+    public boolean validateUser(String username, String password) {
+        boolean status = false;
+        try {
+            String query = "SELECT user_seq_id FROM Intso.app_user WHERE username=? AND password=?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, username);
+            ps.setString(2, password);
+            status = ps.executeQuery().next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return status;
+    }
+
+    // Insert new user into the database
+    public boolean registerUser(User user) {
+        boolean status = false;
+        try {
+            String query = "INSERT INTO Intso.app_user (user_seq_id, email_address, password, username) VALUES (INTSO.APP_USER_SEQ.nextval, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(query);
+           
+            ps.setString(1, user.getEmailAddress());
+            ps.setString(2, user.getPassword());
+            ps.setString(3, user.getUsername());
+           
+
+
+            int rowAffected = ps.executeUpdate();
+            status = rowAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return status;
+    }
+}
+
+
+String query = "SELECT user_seq_id FROM Intso.app_user WHERE username=? AND password=?";
+
+extract the user_seq_id and take this value in sessioon 
+in next file
+
+
+LoginServlet.java
+
+package com.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import com.conn.DbConnect;
+import com.service.UserService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebServlet("/login")
+public class LoginServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private UserService userService;
+
+    public LoginServlet() {
+      
+        this.userService = new UserService();
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        if (userService.validateUser(username, password)) {
+            HttpSession sessionn = request.getSession();
+            sessionn.setAttribute("username", username);
+       
+            response.sendRedirect("index.jsp");
+        } 
+        else {
+            response.sendRedirect("error.jsp");
+        }
+    }
+}
+
