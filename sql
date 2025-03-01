@@ -92,23 +92,13 @@ GRANT CONNECT TO NEW_ROLE_CU_RW;
 GRANT NEW_ROLE_CU_RW TO NEWCU;
 
 
--- CREATE APPUSER TABLE scripts
-
+-- GRANT SELECT on sequence (if you're using sequences to generate primary keys)
 CREATE SEQUENCE NEWSO.APP_USER_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
 GRANT SELECT ON NEWSO.APP_USER_SEQ TO NEW_ROLE_CU_RW;
 
-CREATE TABLE NEWSO.APP_USER
-(
-USER_SEQ_ID 	NUMBER(38,0) NOT NULL,
-EMAIL_ADDRESS 	VARCHAR2(255) NOT NULL,
-PASSWORD 		VARCHAR2(255) NOT NULL,
-USER_NAME 		VARCHAR2(255) NOT NULL,
-CONSTRAINT APP_USER_PK PRIMARY KEY(USER_SEQ_ID)
-) TABLESPACE NEW_DATA;
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON NEWSO.APP_USER TO NEW_ROLE_CU_RW;
-
-
+-- NOTE: Hibernate will handle the table creation based on your JPA entities
+-- You do not need to manually create the APP_USER table here, Hibernate will automatically generate it based on the code.
+-- Just make sure the entity
 
 
 
