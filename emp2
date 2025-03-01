@@ -1,4 +1,54 @@
-my maven project file consits of this i am create a employe mangment app
+@@@@Spring
+
+
+
+-- Create a new tablespace for the new project
+
+CREATE TABLESPACE NEW_DATA
+  DATAFILE 'C:/Chetan/Development/DB/NEW_DATA.dbf'
+  SIZE 100M AUTOEXTEND ON; 
+  
+  
+alter session set "_ORACLE_SCRIPT"=true;
+
+-- Part 1: Create User to serve as the 'Schema Owner' of all the objects
+CREATE USER NEWSO IDENTIFIED BY "NEWSO_pwd"
+  DEFAULT TABLESPACE users
+  TEMPORARY TABLESPACE temp
+  QUOTA UNLIMITED ON users;
+
+
+-- Part 2: Create Application Connect User with Read-write access to the schema
+CREATE USER NEWCU IDENTIFIED BY "NEWCU_pwd"
+  DEFAULT TABLESPACE users
+  TEMPORARY TABLESPACE temp;
+  
+ALTER USER NEWSO quota unlimited on NEW_DATA;
+
+
+-- ROLES
+
+-- Part 1: Create application role with write access
+CREATE ROLE NEW_ROLE_CU_RW NOT IDENTIFIED;
+GRANT CREATE SESSION TO NEW_ROLE_CU_RW;
+GRANT CONNECT TO NEW_ROLE_CU_RW;
+
+-- Assign ROLES
+GRANT NEW_ROLE_CU_RW TO NEWCU;
+
+
+-- GRANT SELECT on sequence (if you're using sequences to generate primary keys)
+CREATE SEQUENCE NEWSO.APP_USER_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+GRANT SELECT ON NEWSO.APP_USER_SEQ TO NEW_ROLE_CU_RW;
+
+-- NOTE: Hibernate will handle the table creation based on your JPA entities
+-- You do not need to manually create the APP_USER table here, Hibernate will automatically generate it based on the code.
+-- Just make sure the entity
+
+
+
+
+@@@my maven project file consits of this i am create a employe mangment app
 
 make file and tell where to save it 
 
