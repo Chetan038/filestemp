@@ -1,3 +1,67 @@
+@@@@Spring
+
+-- Create a new tablespace for the new project
+
+CREATE TABLESPACE NEW_USER_TABLESPACE
+  DATAFILE 'C:/Chetan/Development/DB/NEW_USER_TABLESPACE.dbf'
+  SIZE 100M AUTOEXTEND ON;
+
+alter session set "_ORACLE_SCRIPT"=true;
+
+-- Part 1: Create User to serve as the 'Schema Owner' of all the objects
+CREATE USER NEWSCHEMA_USER IDENTIFIED BY "NEWSCHEMA_USER_pwd"
+  DEFAULT TABLESPACE users
+  TEMPORARY TABLESPACE temp
+  QUOTA UNLIMITED ON users;
+
+-- Part 2: Create Application Connect User with Read-write access to the schema
+CREATE USER NEWAPP_USER IDENTIFIED BY "NEWAPP_USER_pwd"
+  DEFAULT TABLESPACE users
+  TEMPORARY TABLESPACE temp;
+
+ALTER USER NEWSCHEMA_USER quota unlimited on NEW_USER_TABLESPACE;
+
+-- ROLES
+
+-- Part 1: Create application role with write access
+CREATE ROLE NEW_ROLE_APP_RW NOT IDENTIFIED;
+GRANT CREATE SESSION TO NEW_ROLE_APP_RW;
+GRANT CONNECT TO NEW_ROLE_APP_RW;
+
+-- Assign ROLES
+GRANT NEW_ROLE_APP_RW TO NEWAPP_USER;
+
+-- CREATE USER TABLE script (without sequence creation)
+
+-- NOTE: The USER table creation is omitted here as Hibernate will handle the creation based on the JPA entity. 
+-- If Hibernate is set to auto-update schema (ddl-auto=update), it will automatically generate the table based on your entity.
+
+-- Example entity definition for reference:
+-- @Entity
+-- @Table(name = "\"USER\"")
+-- public class User {
+--     @Id
+--     @GeneratedValue(strategy = GenerationType.IDENTITY)  -- Auto-generation of IDs by Hibernate
+--     private Long id;
+--  
+--     @Column(nullable = false)
+--     private String emailAddress;
+--  
+--     @Column(nullable = false)
+--     private String password;
+--  
+--     @Column(nullable = false)
+--     private String userName;
+--  
+--     // getters and setters
+-- }
+
+-- NOTE: Hibernate will manage the table creation automatically based on this JPA entity
+@@@@@@@@@@@22
+
+
+
+
 this error is coming in EditEmp.jsp
 
 fix this 
