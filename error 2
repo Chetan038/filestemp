@@ -1,5 +1,28 @@
 @@@@Spring
 
+Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+[2m2025-03-01T21:54:56.451+05:30[0;39m [32m INFO[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [           main] [0;39m[36mo.h.e.t.j.p.i.JtaPlatformInitiator      [0;39m [2m:[0;39m HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+[2m2025-03-01T21:54:56.453+05:30[0;39m [32m INFO[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [           main] [0;39m[36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m:[0;39m Initialized JPA EntityManagerFactory for persistence unit 'default'
+[2m2025-03-01T21:54:56.586+05:30[0;39m [33m WARN[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [           main] [0;39m[36mJpaBaseConfiguration$JpaWebConfiguration[0;39m [2m:[0;39m spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[2m2025-03-01T21:54:56.597+05:30[0;39m [32m INFO[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [           main] [0;39m[36mo.s.b.a.w.s.WelcomePageHandlerMapping   [0;39m [2m:[0;39m Adding welcome page: class path resource [static/index.html]
+[2m2025-03-01T21:54:56.786+05:30[0;39m [32m INFO[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [           main] [0;39m[36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat started on port 8080 (http) with context path '/'
+[2m2025-03-01T21:54:56.792+05:30[0;39m [32m INFO[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [           main] [0;39m[36mc.c.main.SpringBootWebAppApplication    [0;39m [2m:[0;39m Started SpringBootWebAppApplication in 2.865 seconds (process running for 3.577)
+[2m2025-03-01T21:55:07.678+05:30[0;39m [32m INFO[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-1] [0;39m[36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m:[0;39m Initializing Spring DispatcherServlet 'dispatcherServlet'
+[2m2025-03-01T21:55:07.678+05:30[0;39m [32m INFO[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-1] [0;39m[36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Initializing Servlet 'dispatcherServlet'
+[2m2025-03-01T21:55:07.679+05:30[0;39m [32m INFO[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-1] [0;39m[36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Completed initialization in 1 ms
+Hibernate: insert into user (email,name,password,phoneno,id) values (?,?,?,?,default)
+[2m2025-03-01T21:55:30.930+05:30[0;39m [33m WARN[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-6] [0;39m[36mo.h.engine.jdbc.spi.SqlExceptionHelper  [0;39m [2m:[0;39m SQL Error: 931, SQLState: 42000
+[2m2025-03-01T21:55:30.930+05:30[0;39m [31mERROR[0;39m [35m6080[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-6] [0;39m[36mo.h.engine.jdbc.spi.SqlExceptionHelper  [0;39m [2m:[0;39m ORA-00931: missing identifier
+
+https://docs.oracle.com/error-help/db/ora-00931/
+@@errorend
+
 -- Create a new tablespace for the new project
 
 CREATE TABLESPACE NEW_USER_TABLESPACE
