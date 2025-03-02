@@ -1,4 +1,18 @@
-i want to make a  button  in action tab which activates and deactives the status tab to active and deactive when clicked
+ 
+GRANT CONNECT, RESOURCE TO emp_mgmt;
+GRANT CREATE SESSION TO emp_mgmt;
+GRANT CREATE TABLE TO emp_mgmt;
+GRANT CREATE SEQUENCE TO emp_mgmt;
+GRANT CREATE VIEW TO emp_mgmt;
+GRANT CREATE PROCEDURE TO emp_mgmt;
+GRANT CREATE TRIGGER TO emp_mgmt;
+GRANT UNLIMITED TABLESPACE TO emp_mgmt;
+
+
+
+
+
+want to make a  button  in action tab which activates and deactives the status tab to active and deactive when clicked
 and save the changes in the database of that record 
 
 this is my files
