@@ -1,158 +1,189 @@
+login
+
+
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Admin Login</h2>
+
+    <c:if test="${not empty error}">
+        <p style="color: red;">${error}</p>
+    </c:if>
+
+    <form action="login" method="post">
+        <label>Username:</label>
+        <input type="text" name="username" required>
+        <br>
+        <label>Password:</label>
+        <input type="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
+
+@@@@
+
+index
+
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Employee Management</h2>
+    
+    <a href="logout">Logout</a>
+    <br><br>
+    
+    <table border="1">
+        <tr>
+            <th>EMP ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Designation</th>
+            <th>Salary</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        
+        <c:forEach var="emp" items="${employees}">
+            <tr>
+                <td>${emp.empId}</td>
+                <td>${emp.name}</td>
+                <td>${emp.email}</td>
+                <td>${emp.designation}</td>
+                <td>${emp.salary}</td>
+                <td>${emp.status}</td>
+                <td>
+                    <a href="edit/${emp.empId}">Edit</a> |
+                    <a href="delete/${emp.empId}" onclick="return confirm('Are you sure?');">Delete</a>
+                </td>
+            </tr>
+        </c:forEach>
+    </table>
+
+    <br>
+    <a href="add">Add New Employee</a>
+</body>
+</html>
 
 
 
-Below is one way to implement this. The idea is to add a method in your service layer (and its corresponding DAO method) that:
-	1.	Retrieves the current employee’s status.
-	2.	Toggles the status from “ACTIVE” to “DEACTIVE” (or vice versa).
-	3.	Updates the record in the database.
+@@@@'
 
-Step 1. Update EmployeeDAO.java
+add_employee
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Employee</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Add New Employee</h2>
 
-Add a new method in your DAO class to update only the status:
+    <form action="save" method="post">
+        <label>Name:</label>
+        <input type="text" name="name" required>
+        <br>
+        <label>Email:</label>
+        <input type="email" name="email" required>
+        <br>
+        <label>Designation:</label>
+        <input type="text" name="designation" required>
+        <br>
+        <label>Salary:</label>
+        <input type="number" name="salary" step="0.01" required>
+        <br>
+        <label>Status:</label>
+        <select name="status">
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+        </select>
+        <br>
+        <button type="submit">Save</button>
+    </form>
 
-public boolean updateEmployeeStatus(int empSeqId, String newStatus, int updatedBy) {
-    boolean status = false;
-    try {
-        String query = "UPDATE INTSO.EMPLOYEE SET STATUS = ?, DT_UPDATED = SYSTIMESTAMP, UPDATED_BY = ? WHERE EMP_SEQ_ID = ?";
-        PreparedStatement ps = conn.prepareStatement(query);
-        ps.setString(1, newStatus);
-        ps.setInt(2, updatedBy);  // Pass the user id who updated; you might get this from the session.
-        ps.setInt(3, empSeqId);
-        status = ps.executeUpdate() > 0;
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return status;
-}
-
-Step 2. Update EmployeeService.java
-
-Add a new business logic method that toggles the status:
-
-package com.service;
-
-import com.dao.EmployeeDAO;
-import com.entity.Employee;
-import com.conn.DbConnect;
-import java.sql.Connection;
-
-public class EmployeeService {
-    private EmployeeDAO employeeDAO;
-
-    public EmployeeService() {
-        Connection conn = DbConnect.getConn();
-        this.employeeDAO = new EmployeeDAO(conn);
-    }
-
-    // ... other methods (add, update, delete, etc.) ...
-
-    /**
-     * Toggle employee status between ACTIVE and DEACTIVE.
-     * @param empSeqId The unique id of the employee.
-     * @param updatedBy The id of the user making the change.
-     * @return true if the update was successful; false otherwise.
-     */
-    public boolean toggleEmployeeStatus(int empSeqId, int updatedBy) {
-        // First, get the current employee data
-        Employee emp = employeeDAO.getEmployeeById(empSeqId);
-        if (emp == null) {
-            return false; // Employee not found
-        }
-
-        // Determine the new status based on current status
-        String currentStatus = emp.getStatus();
-        String newStatus = "ACTIVE";
-        if (currentStatus != null && currentStatus.equalsIgnoreCase("ACTIVE")) {
-            newStatus = "DEACTIVE";
-        }
-
-        // Update the status in the database
-        return employeeDAO.updateEmployeeStatus(empSeqId, newStatus, updatedBy);
-    }
-}
-
-Step 3. Using This in Your JSP/Servlet
-
-In your index.jsp (or through a dedicated servlet), you can include a button for each row that calls a servlet (for example, ToggleStatusServlet) with the empSeqId and, if needed, the updatedBy value (which might come from the current session).
-
-For example, your servlet could be:
-
-package com.servlet;
-
-import java.io.IOException;
-import com.service.EmployeeService;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-@WebServlet("/toggleStatus")
-public class ToggleStatusServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-    private EmployeeService employeeService;
-
-    public ToggleStatusServlet() {
-        this.employeeService = new EmployeeService();
-    }
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Assuming empSeqId and updatedBy are passed as parameters.
-        int empSeqId = Integer.parseInt(request.getParameter("emp_seq_id"));
-        int updatedBy = Integer.parseInt(request.getParameter("updated_by")); // Alternatively, get from session
-
-        if (employeeService.toggleEmployeeStatus(empSeqId, updatedBy)) {
-            response.sendRedirect("index.jsp");
-        } else {
-            response.getWriter().write("Error toggling employee status.");
-        }
-    }
-}
-
-In index.jsp, the button might look like:
-
-<!-- For each employee row, include a button like: -->
-<form action="toggleStatus" method="get">
-    <input type="hidden" name="emp_seq_id" value="${employee.empSeqId}" />
-    <!-- Optionally, pass updated_by (or determine in the servlet from session) -->
-    <input type="hidden" name="updated_by" value="${sessionScope.userId}" />
-    <button type="submit">
-        Toggle Status (Current: ${employee.status})
-    </button>
-</form>
-
-Summary
-	•	DAO Layer: A new method updateEmployeeStatus is added to update only the status.
-	•	Service Layer: A method toggleEmployeeStatus encapsulates the business logic—retrieving the current status, determining the new status, and calling the DAO method to update.
-	•	Servlet/JSP: The UI calls a servlet that invokes this service method, thereby toggling the employee’s status between active and deactive.
-
-This design keeps your business logic centralized in the service layer, making future changes easier and ensuring that the servlet remains lightweight.
+    <br>
+    <a href="index">Back to Home</a>
+</body>
+</html>
 
 
-???
 
-package com.service;
+@@@@
 
-import com.dao.EmployeeDAO;
-import com.entity.Employee;
-import com.conn.DbConnect;
-import java.sql.Connection;
+edit employee
 
-public class EmployeeService {
-    private EmployeeDAO employeeDAO;
 
-    public EmployeeService() {
-        Connection conn = DbConnect.getConn();
-        this.employeeDAO = new EmployeeDAO(conn);
-    }
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Employee</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Edit Employee</h2>
 
-    // Method to add an employee with department ID validation
-    public String addEmployee(Employee emp) {
-        if (emp.getEmpDeptId() > 3) {
-            return "Department ID must be 3 or less.";
-        }
+    <form action="../update" method="post">
+        <input type="hidden" name="empId" value="${employee.empId}">
+        
+        <label>Name:</label>
+        <input type="text" name="name" value="${employee.name}" required>
+        <br>
+        <label>Email:</label>
+        <input type="email" name="email" value="${employee.email}" required>
+        <br>
+        <label>Designation:</label>
+        <input type="text" name="designation" value="${employee.designation}" required>
+        <br>
+        <label>Salary:</label>
+        <input type="number" name="salary" value="${employee.salary}" step="0.01" required>
+        <br>
+        <label>Status:</label>
+        <select name="status">
+            <option value="ACTIVE" ${employee.status == 'ACTIVE' ? 'selected' : ''}>Active</option>
+            <option value="INACTIVE" ${employee.status == 'INACTIVE' ? 'selected' : ''}>Inactive</option>
+        </select>
+        <br>
+        <button type="submit">Update</button>
+    </form>
 
-        boolean isAdded = employeeDAO.addEmployee(emp);
-        return isAdded ? "Employee added successfully." : "Error adding employee.";
-    }
-}
+    <br>
+    <a href="../index">Back to Home</a>
+</body>
+</html>
+
+
+@@@@@
+
+
+error
+
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Error</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Error</h2>
+    <p>${errorMessage}</p>
+    <a href="index">Back to Home</a>
+</body>
+</html>
+
+
