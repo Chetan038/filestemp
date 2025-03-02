@@ -1,8 +1,6 @@
-Hibernate: insert into user (email,name,password,phoneno,id) values (?,?,?,?,default)
-[2m2025-03-02T13:59:39.000+05:30[0;39m [33m WARN[0;39m [35m27344[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-2] [0;39m[36mo.h.engine.jdbc.spi.SqlExceptionHelper  [0;39m [2m:[0;39m SQL Error: 931, SQLState: 42000
-[2m2025-03-02T13:59:39.000+05:30[0;39m [31mERROR[0;39m [35m27344[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-2] [0;39m[36mo.h.engine.jdbc.spi.SqlExceptionHelper  [0;39m [2m:[0;39m ORA-00931: missing identifier
-
-https://docs.oracle.com/error-help/db/ora-00931/
+Hibernate: insert into user (email,name,password,phoneno,id) values (?,?,?,?,?)
+[2m2025-03-02T14:05:34.051+05:30[0;39m [33m WARN[0;39m [35m13828[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-4] [0;39m[36mo.h.engine.jdbc.spi.SqlExceptionHelper  [0;39m [2m:[0;39m SQL Error: 903, SQLState: 42000
+[2m2025-03-02T14:05:34.051+05:30[0;39m [31mERROR[0;39m [35m13828[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-4] [0;39m[36mo.h.engine.jdbc.spi.SqlExceptionHelper  [0;39m [2m:[0;39m ORA-00903: invalid table name
 
 
 whats the error in this fix this
