@@ -1,4 +1,6 @@
 fix this error are comming 
+Error: Could not find or load main class com.chetan.main.EmployeeManagementApplication
+Caused by: java.lang.ClassNotFoundException: com.chetan.main.EmployeeManagementApplication
 
 
 org.hibernate.boot.registry.selector.spi.StrategySelectionException: Unable to resolve name [org.hibernate.dialect.Oracle12cDialect] as strategy [org.hibernate.dialect.Dialect]
