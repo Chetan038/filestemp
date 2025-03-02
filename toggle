@@ -1,4 +1,10 @@
 fix this error are comming 
+
+[EmployeeManagement] [nio-8080-exec-1] [0;39m[36mo.a.c.c.C.[.[.[/].[dispatcherServlet]   [0;39m [2m:[0;39m Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.thymeleaf.exceptions.TemplateInputException: Error resolving template [login], template might not exist or might not be accessible by any of the configured Template Resolvers] with root caus
+
+Error resolving template [login], template might not exist or might not be accessible by any of the configured Template Resolvers
+
+@@@@
 Error: Could not find or load main class com.chetan.main.EmployeeManagementApplication
 Caused by: java.lang.ClassNotFoundException: com.chetan.main.EmployeeManagementApplication
 
