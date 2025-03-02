@@ -1,3 +1,14 @@
+Hibernate: insert into user (email,name,password,phoneno,id) values (?,?,?,?,default)
+[2m2025-03-02T13:59:39.000+05:30[0;39m [33m WARN[0;39m [35m27344[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-2] [0;39m[36mo.h.engine.jdbc.spi.SqlExceptionHelper  [0;39m [2m:[0;39m SQL Error: 931, SQLState: 42000
+[2m2025-03-02T13:59:39.000+05:30[0;39m [31mERROR[0;39m [35m27344[0;39m [2m--- [SpringBootWebApp] [nio-8080-exec-2] [0;39m[36mo.h.engine.jdbc.spi.SqlExceptionHelper  [0;39m [2m:[0;39m ORA-00931: missing identifier
+
+https://docs.oracle.com/error-help/db/ora-00931/
+
+
+whats the error in this fix this
+
+
+
 fix this error are comming 
 
 [EmployeeManagement] [nio-8080-exec-1] [0;39m[36mo.a.c.c.C.[.[.[/].[dispatcherServlet]   [0;39m [2m:[0;39m Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.thymeleaf.exceptions.TemplateInputException: Error resolving template [login], template might not exist or might not be accessible by any of the configured Template Resolvers] with root caus
