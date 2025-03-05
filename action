@@ -1,367 +1,104 @@
-CREATE TABLE EMPLOYEE (
-    EMP_ID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    NAME VARCHAR2(100) NOT NULL,
-    EMAIL VARCHAR2(100) UNIQUE NOT NULL,
-    DESIGNATION VARCHAR2(100),
-    SALARY NUMBER(10,2),
-    STATUS VARCHAR2(10) DEFAULT 'ACTIVE',
-    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create a trigger to update UPDATED_AT column automatically
-CREATE OR REPLACE TRIGGER EMPLOYEE_BEFORE_UPDATE
-BEFORE UPDATE ON EMPLOYEE
-FOR EACH ROW
-BEGIN
-    :NEW.UPDATED_AT := CURRENT_TIMESTAMP;
-END;
-/
-
-@@@@
-
-
- SELECT * FROM DBA_TS_QUOTAS WHERE USERNAME = 'EMP_MGMT';
-
-
-GRANT CONNECT, RESOURCE TO emp_mgmt;
-GRANT CREATE SESSION TO emp_mgmt;
-GRANT CREATE TABLE TO emp_mgmt;
-GRANT CREATE SEQUENCE TO emp_mgmt;
-GRANT CREATE VIEW TO emp_mgmt;
-GRANT CREATE PROCEDURE TO emp_mgmt;
-GRANT CREATE TRIGGER TO emp_mgmt;
-GRANT UNLIMITED TABLESPACE TO emp_mgmt;
-
-
-
-
-
-want to make a  button  in action tab which activates and deactives the status tab to active and deactive when clicked
-and save the changes in the database of that record 
-
-this is my files
-
-src/main/java
-com.conn
-com.doa->EmployeeDAO.java
-com.entity->Employee.java
-com.servlet->
-
-webapp
-index.jsp
-
-this are my codes 
-
-package com.dao;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import com.conn.DbConnect;
-import com.entity.Employee;
-
-public class EmployeeDAO {
-    private Connection conn;
-
-    public EmployeeDAO(Connection conn) { this.conn = conn; }
-
-   
-
-    public List<Employee> getAllEmployees() {
-        List<Employee> list = new ArrayList<>();
-        try {
-            String query = "SELECT * FROM INTSO.EMPLOYEE";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Employee emp = new Employee();
-                emp.setEmpSeqId(rs.getInt("EMP_SEQ_ID"));
-                emp.setEmpId(rs.getString("EMP_ID"));  // Added this line
-                emp.setEmpName(rs.getString("EMP_NAME"));
-                emp.setEmpDeptId(rs.getInt("EMP_DEPT_ID"));
-                emp.setEmpPerDaySal(rs.getDouble("EMP_PER_DAY_SAL"));
-                emp.setStatus(rs.getString("STATUS"));
-                emp.setDtCreated(rs.getString("DT_CREATED"));
-                emp.setCreatedBy(rs.getInt("CREATED_BY"));
-                emp.setDtUpdated(rs.getString("DT_UPDATED"));
-                emp.setUpdatedBy(rs.getInt("UPDATED_BY"));
-                list.add(emp);
-            }
-        } catch (Exception e) { e.printStackTrace(); }
-        return list;
-    }
-    
-    public boolean updateEmployee(Employee emp) {
-        boolean status = false;
-        try {
-            String query = "UPDATE INTSO.EMPLOYEE SET EMP_NAME=?, EMP_DEPT_ID=?, EMP_PER_DAY_SAL=?, STATUS=?, DT_UPDATED=SYSTIMESTAMP, UPDATED_BY=? WHERE EMP_SEQ_ID=?";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setString(1, emp.getEmpName());
-            ps.setInt(2, emp.getEmpDeptId());
-            ps.setDouble(3, emp.getEmpPerDaySal());
-            ps.setString(4, emp.getStatus());
-            ps.setInt(5, emp.getUpdatedBy());
-            ps.setInt(6, emp.getEmpSeqId());
-            status = ps.executeUpdate() > 0;
-        } catch (Exception e) { e.printStackTrace(); }
-        return status;
-    }
-    
-
-    public boolean addEmployee(Employee emp) {
-        boolean status = false;
-        try {
-        	String query = "INSERT INTO INTSO.EMPLOYEE (EMP_SEQ_ID, EMP_ID, EMP_NAME, EMP_DEPT_ID, EMP_PER_DAY_SAL, STATUS, DT_CREATED, CREATED_BY, DT_UPDATED, UPDATED_BY) VALUES (INTSO.EMP_SEQ_ID.nextval, ?, ?, ?, ?, ?, SYSTIMESTAMP, ?, SYSTIMESTAMP, ?)";
-        	PreparedStatement ps = conn.prepareStatement(query);
-
-        	ps.setString(1, emp.getEmpId());
-        	ps.setString(2, emp.getEmpName());
-        	ps.setInt(3, emp.getEmpDeptId());
-        	ps.setDouble(4, emp.getEmpPerDaySal());
-        	ps.setString(5, emp.getStatus());
-        	ps.setInt(6, emp.getCreatedBy());
-        	ps.setInt(7, emp.getUpdatedBy());
-
-            status = ps.executeUpdate() > 0;
-        } catch (Exception e) { e.printStackTrace(); }
-        return status;
-    }
-
-    public boolean deleteEmployee(int empSeqId) {
-        boolean status = false;
-        try {
-            String query = "DELETE FROM INTSO.EMPLOYEE WHERE EMP_SEQ_ID=?";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setInt(1, empSeqId);
-            status = ps.executeUpdate() > 0;
-        } catch (Exception e) { e.printStackTrace(); }
-        return status;
-    }
-
-    public Employee getEmployeeById(int empId) {
-        Employee emp = null;
-        try {
-            String query = "SELECT * FROM INTSO.EMPLOYEE WHERE EMP_SEQ_ID=?";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setInt(1, empId);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                emp = new Employee();
-                emp.setEmpSeqId(rs.getInt("EMP_SEQ_ID"));
-                emp.setEmpId(rs.getString("EMP_ID")); // Added this line
-                emp.setEmpName(rs.getString("EMP_NAME"));
-                emp.setEmpDeptId(rs.getInt("EMP_DEPT_ID"));
-                emp.setEmpPerDaySal(rs.getDouble("EMP_PER_DAY_SAL"));
-                emp.setStatus(rs.getString("STATUS"));
-                emp.setCreatedBy(rs.getInt("CREATED_BY"));
-                emp.setUpdatedBy(rs.getInt("UPDATED_BY"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return emp;
-    }
-
-
-Employee.java
-
-package com.entity;
-
-public class Employee {
-    private int empSeqId;
-    private String empId;  // New field
-    private String empName;
-    private int empDeptId;
-    private double empPerDaySal;
-    private String status;
-    private String dtCreated;
-    private int createdBy;
-    private String dtUpdated;
-    private int updatedBy;
-
-    // Getters and Setters
-    public int getEmpSeqId() { return empSeqId; }
-    public void setEmpSeqId(int empSeqId) { this.empSeqId = empSeqId; }
-
-    public String getEmpId() { return empId; }
-    public void setEmpId(String empId) { this.empId = empId; }
-
-    public String getEmpName() { return empName; }
-    public void setEmpName(String empName) { this.empName = empName; }
-
-    public int getEmpDeptId() { return empDeptId; }
-    public void setEmpDeptId(int empDeptId) { this.empDeptId = empDeptId; }
-
-    public double getEmpPerDaySal() { return empPerDaySal; }
-    public void setEmpPerDaySal(double empPerDaySal) { this.empPerDaySal = empPerDaySal; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public String getDtCreated() { return dtCreated; }
-    public void setDtCreated(String dtCreated) { this.dtCreated = dtCreated; }
-
-    public int getCreatedBy() { return createdBy; }
-    public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
-
-    public String getDtUpdated() { return dtUpdated; }
-    public void setDtUpdated(String dtUpdated) { this.dtUpdated = dtUpdated; }
-
-    public int getUpdatedBy() { return updatedBy; }
-    public void setUpdatedBy(int updatedBy) { this.updatedBy = updatedBy; }
-}
-
-index.jsp
-
-<%@ page import="java.util.List, com.dao.EmployeeDAO, com.conn.DbConnect, com.entity.Employee" %>
-<%
-    EmployeeDAO empDAO = new EmployeeDAO(DbConnect.getConn());
-    List<Employee> empList = empDAO.getAllEmployees();
-%>
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Employee List</title>
+    <title>Login</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fad0c4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Login container */
+        .login-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+        }
+
+        /* Input fields */
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ccc;
+            border-radius: 25px;
+            transition: all 0.3s ease-in-out;
+            outline: none;
+            font-size: 16px;
+        }
+
+        input:focus {
+            border-color: #ff758c;
+            box-shadow: 0 0 8px rgba(255, 117, 140, 0.5);
+        }
+
+        /* Button */
+        button {
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            width: 100%;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(255, 117, 140, 0.3);
+        }
+
+        /* Error message */
+        p {
+            margin-top: 10px;
+            color: red;
+            font-size: 14px;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Employee List</h2>
-    <table border="1">
-        <tr>
-            <th>EMP ID</th>
-            <th>Name</th>
-            <th>Department ID</th>
-            <th>Salary</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        <% for (Employee emp : empList) { %>
-        <tr>
-            <td><%= emp.getEmpId() %></td>
-            <td><%= emp.getEmpName() %></td>
-            <td><%= emp.getEmpDeptId() %></td>
-            <td><%= emp.getEmpPerDaySal() %></td>
-            <td><%= emp.getStatus() %></td>
-            <td>
-                <a href="DeleteEmployeeServlet?emp_seq_id=<%= emp.getEmpSeqId() %>">Delete</a>
-                 <a href="EditEmp.jsp">Edit</a>
-                
-             
-            </td>
-        </tr>
-        <% } %>
-    </table>
-    <br>
-    <a href="Add_Emp.jsp">Add Employee</a>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form action="/login" method="post">
+            <div>
+                <input type="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <div>
+                <input type="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit">Login</button>
+            <p th:if="${error}" th:text="${error}"></p>
+        </form>
+    </div>
 </body>
 </html>
-
-
-make funtionality according to above code files 
-
-
- 
-}
-
-
-
-solution
-
-
-Steps to Implement Toggle Status Functionality:
-	1.	Add a Toggle Button in index.jsp
-	•	This button will change the employee’s status between “Active” and “Inactive.”
-	•	It will call a servlet (ToggleStatusServlet.java) with the employee’s ID.
-	2.	Create ToggleStatusServlet.java
-	•	This servlet will:
-	•	Retrieve the current status of the employee.
-	•	Toggle it to the opposite value.
-	•	Update the database.
-	3.	Modify EmployeeDAO.java
-	•	Add a method to update the employee’s status.
-
-1. Modify index.jsp (Add Toggle Button)
-
-Update the Actions column in the table:
-
-<td>
-    <a href="DeleteEmployeeServlet?emp_seq_id=<%= emp.getEmpSeqId() %>">Delete</a>
-    <a href="EditEmp.jsp">Edit</a>
-    <a href="ToggleStatusServlet?emp_seq_id=<%= emp.getEmpSeqId() %>&current_status=<%= emp.getStatus() %>">
-        <button><%= emp.getStatus().equals("Active") ? "Deactivate" : "Activate" %></button>
-    </a>
-</td>
-
-	•	If the employee’s status is Active, the button shows “Deactivate.”
-	•	If the status is Inactive, the button shows “Activate.”
-
-2. Create ToggleStatusServlet.java
-
-Add a new servlet to handle status updates.
-
-src/main/java/com/servlet/ToggleStatusServlet.java
-
-package com.servlet;
-
-import com.dao.EmployeeDAO;
-import com.conn.DbConnect;
-import java.io.IOException;
-import java.sql.Connection;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-@WebServlet("/ToggleStatusServlet")
-public class ToggleStatusServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            int empSeqId = Integer.parseInt(request.getParameter("emp_seq_id"));
-            String currentStatus = request.getParameter("current_status");
-
-            // Toggle status
-            String newStatus = currentStatus.equalsIgnoreCase("Active") ? "Inactive" : "Active";
-
-            Connection conn = DbConnect.getConn();
-            EmployeeDAO empDAO = new EmployeeDAO(conn);
-            boolean success = empDAO.updateEmployeeStatus(empSeqId, newStatus);
-
-            if (success) {
-                response.sendRedirect("index.jsp"); // Refresh the page
-            } else {
-                response.getWriter().println("Error updating status.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-3. Modify EmployeeDAO.java
-
-Add the method to update the employee’s status.
-
-Update src/main/java/com/dao/EmployeeDAO.java
-
-public boolean updateEmployeeStatus(int empSeqId, String status) {
-    boolean updated = false;
-    try {
-        String query = "UPDATE INTSO.EMPLOYEE SET STATUS=?, DT_UPDATED=SYSTIMESTAMP WHERE EMP_SEQ_ID=?";
-        PreparedStatement ps = conn.prepareStatement(query);
-        ps.setString(1, status);
-        ps.setInt(2, empSeqId);
-        updated = ps.executeUpdate() > 0;
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return updated;
-}
-
-Now, When You Click the Button:
-	1.	The ToggleStatusServlet gets the employee ID and current status.
-	2.	It switches the status (Active ↔ Inactive).
-	3.	It updates the database.
-	4.	The page reloads to reflect the change.
-
-This will successfully implement the toggle status button!
