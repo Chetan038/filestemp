@@ -1,88 +1,33 @@
--- Create a new tablespace for the new project
-
-CREATE TABLESPACE NEW_DATA
-  DATAFILE 'C:/Chetan/Development/DB/NEW_DATA.dbf'
+-- Create a new tablespace for the project
+CREATE TABLESPACE QUIZ_DATA
+  DATAFILE 'C:/Chetan/Development/DB/QUIZ_DATA.dbf'
   SIZE 100M AUTOEXTEND ON; 
-  
-  
-alter session set "_ORACLE_SCRIPT"=true;
 
--- Part 1: Create User to serve as the 'Schema Owner' of all the objects
-CREATE USER NEWSO IDENTIFIED BY "NEWSO_pwd"
-  DEFAULT TABLESPACE users
+ALTER SESSION SET "_ORACLE_SCRIPT"=true;
+
+-- Create Schema Owner (Schema where all objects will be created)
+CREATE USER QUIZ_SCHEMA_OWNER IDENTIFIED BY "QUIZSO_pwd"
+  DEFAULT TABLESPACE QUIZ_DATA
   TEMPORARY TABLESPACE temp
-  QUOTA UNLIMITED ON users;
+  QUOTA UNLIMITED ON QUIZ_DATA;
 
-
--- Part 2: Create Application Connect User with Read-write access to the schema
-    CREATE USER NEWCU IDENTIFIED BY "NEWCU_pwd"
-  DEFAULT TABLESPACE users
+-- Create Application User (Spring Boot will connect using this user)
+CREATE USER QUIZ_APP_USER IDENTIFIED BY "QUIZCU_pwd"
+  DEFAULT TABLESPACE QUIZ_DATA
   TEMPORARY TABLESPACE temp;
-  
-ALTER USER NEWSO quota unlimited on NEW_DATA;
 
+-- Grant all required privileges to Schema Owner
+GRANT CONNECT, RESOURCE, CREATE SESSION, CREATE TABLE, CREATE VIEW, CREATE SEQUENCE, CREATE TRIGGER, CREATE PROCEDURE, CREATE SYNONYM TO QUIZ_SCHEMA_OWNER;
 
--- ROLES
+-- Allow the Application User to use the schema objects
+GRANT CONNECT, RESOURCE, CREATE SESSION TO QUIZ_APP_USER;
+GRANT ALL PRIVILEGES ON QUIZ_SCHEMA_OWNER TO QUIZ_APP_USER;
 
--- Part 1: Create application role with write access
-CREATE ROLE NEW_ROLE_CU_RW NOT IDENTIFIED;
-GRANT CREATE SESSION TO NEW_ROLE_CU_RW;
-GRANT CONNECT TO NEW_ROLE_CU_RW;
+-- Allow QUIZ_APP_USER to access and modify objects in QUIZ_SCHEMA_OWNER
+GRANT SELECT, INSERT, UPDATE, DELETE, ALTER, INDEX ON QUIZ_SCHEMA_OWNER TO QUIZ_APP_USER;
 
--- Assign ROLES
-GRANT NEW_ROLE_CU_RW TO NEWCU;
+-- Set unlimited quota for QUIZ_APP_USER on tablespace
+ALTER USER QUIZ_APP_USER QUOTA UNLIMITED ON QUIZ_DATA;
 
-
--- GRANT SELECT on sequence (if you're using sequences to generate primary keys)
-CREATE SEQUENCE NEWSO.USERR_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
-GRANT SELECT ON NEWSO.USERR_SEQ TO NEW_ROLE_CU_RW;
-
-CREATE TABLE NEWSO.USERR
-(
-
-NAME 	VARCHAR2(255)NOT NULL,
-EMAIL 		VARCHAR2(255)NOT NULL,
-PASSWORD 		VARCHAR2(255)NOT NULL,
-PHONENO		VARCHAR2(255)NOT NULL
-
-)TABLESPACE NEW_DATA;
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON NEWSO.USERR TO NEW_ROLE_CU_RW;
-
--- NOTE: Hibernate will handle the table creation based on your JPA entities
--- You do not need to manually create the APP_USER table here, Hibernate will automatically generate it based on the code.
--- Just make sure the entity
-
-Alter table NEWSO.USERR Add id NUMBER NOT NULL;
-
-Alter table NEWSO.USERR Add constraint user_pk PRIMARY KEY (id);
-
-select * from NEWSO.USERR;
-
-
-select USERR from NEWSO where  upper(USERR) ='USERR';
-
-select sys_context('userenv','current_schema') From dual;
-
-select constraint_name from user_constraints where table_name = 'NEWSO.USERR' and constraint_type='P';
-
-alter table NEWSO.USERR drop primary key;
-
-this is my databse quesry and
-
-
-thi is my applicatino.properties 
-
-spring.application.name=quizzapp
-
-spring.datasource.url=jdbc:oracle:thin:@localhost:1521:xe
-spring.datasource.username=NEWCU
-spring.datasource.password=NEWCU_pwd
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-
-spring.jpa.database-platform=org.hibernate.dialect.OracleDialect
-
-
-now fix 
+-- Verify current schema (Optional)
+SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') FROM DUAL;
