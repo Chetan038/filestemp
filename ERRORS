@@ -1,66 +1,19 @@
-this is my apiGateway->application.yml
+demo(eureka server)
 
 application.yml
-server:
-    port: 0
-spring:
-  application:
-    name: apiGateway
 
-this is my bService,ClinetController.java,applicatino.yml
-
-
-
-clientControler.java
-
-package com.serviceb.bService;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-@RequestMapping("/client")
-public class ClientController {
-
-	@GetMapping("/hello")
-	public String callServiceA() {
-		return "bbbb";
-	}
-
-}
-
-
-
-application.yml
 spring:
  application:
-  name: bService
+  name: demo
  config:
-  import: optional:config-server:http://localhost:8888/ 
+   import: "optional:configserver:http://localhost:8888/"
 
 
-eureka:
-  instance:
-    hostname: localhost
-    prefer-ip-address: false
-  client:
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
-      
-server:
-  port: 0
+config-server
+
+applicatino.yml
 
 
-
-this is my config-server
-
-application.yml
-
-eureka:
-    client:
-        service-url:
-            defaultZone: http://localhost:8761/eureka/
 server:
     port: 8888
 spring:
@@ -74,29 +27,32 @@ spring:
     profiles:
         active: native
 
-this is my demo(eureka)
+bService
 
-apllication.yml
+aplicatino.yml;
 
 spring:
  application:
-  name: demo
+  name: service-b
+ config:
+  import: optional:configserver:http://localhost:8888/
 
-server: 
- port: 8761
 
-eureka:
- instance:
-   hostname: localhost
-   prefer-ip-address: false
- client:
-   registerWithEureka: false
-   fetchRegistry: false
-   serviceUrl:
-     defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+apiGateway
 
-i have config-repo folder in c drive 
-in which apiGateway.yml
+application.yml
+
+
+spring:
+  application:
+    name: apiGateway
+  config:
+    import: optional:configserver:http://localhost:8888/
+
+
+this is my c/config-repo/apiGateway.yml
+
+apiGateway.yml
 
 eureka:
   instance:
@@ -122,17 +78,31 @@ spring:
               allowedHeaders: "*"
       routes:
       - id: service-b
-        uri: lb://bService
+        uri: lb://service-b
         predicates:
         - Path=/service-b/**
         filters:
         - RewritePath=/service-b/(?<path>.*), /$\{path}	
 
-service-b.yml
+ c/config-repo/demo.yml
 
-spring:
- application:
-  name: bService
+demo.yml
+server: 
+ port: 8761
+
+eureka:
+ instance:
+   hostname: localhost
+   prefer-ip-address: false
+ client:
+   registerWithEureka: false
+   fetchRegistry: false
+   serviceUrl:
+     defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+ c/config-repo/service-b.yml
+
+service-b.yml
 
 
 eureka:
@@ -148,13 +118,7 @@ server:
 
 
 
+fix api gate way is not working port 8080 is not working when calling service b from that port
+but service b is running in 8082 port and api gateway and b service is listing in eureka server
 
-fix the code for linking config-server link the server config
-
-
-
-
-
-
-
-
+fix and check prperly why api gate way is not working fix that 
