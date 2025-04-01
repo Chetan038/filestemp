@@ -1,33 +1,160 @@
--- Create a new tablespace for the project
-CREATE TABLESPACE QUIZ_DATA
-  DATAFILE 'C:/Chetan/Development/DB/QUIZ_DATA.dbf'
-  SIZE 100M AUTOEXTEND ON; 
+this is my apiGateway->application.yml
 
-ALTER SESSION SET "_ORACLE_SCRIPT"=true;
+application.yml
+server:
+    port: 0
+spring:
+  application:
+    name: apiGateway
 
--- Create Schema Owner (Schema where all objects will be created)
-CREATE USER QUIZ_SCHEMA_OWNER IDENTIFIED BY "QUIZSO_pwd"
-  DEFAULT TABLESPACE QUIZ_DATA
-  TEMPORARY TABLESPACE temp
-  QUOTA UNLIMITED ON QUIZ_DATA;
+this is my bService,ClinetController.java,applicatino.yml
 
--- Create Application User (Spring Boot will connect using this user)
-CREATE USER QUIZ_APP_USER IDENTIFIED BY "QUIZCU_pwd"
-  DEFAULT TABLESPACE QUIZ_DATA
-  TEMPORARY TABLESPACE temp;
 
--- Grant all required privileges to Schema Owner
-GRANT CONNECT, RESOURCE, CREATE SESSION, CREATE TABLE, CREATE VIEW, CREATE SEQUENCE, CREATE TRIGGER, CREATE PROCEDURE, CREATE SYNONYM TO QUIZ_SCHEMA_OWNER;
 
--- Allow the Application User to use the schema objects
-GRANT CONNECT, RESOURCE, CREATE SESSION TO QUIZ_APP_USER;
-GRANT ALL PRIVILEGES ON QUIZ_SCHEMA_OWNER TO QUIZ_APP_USER;
+clientControler.java
 
--- Allow QUIZ_APP_USER to access and modify objects in QUIZ_SCHEMA_OWNER
-GRANT SELECT, INSERT, UPDATE, DELETE, ALTER, INDEX ON QUIZ_SCHEMA_OWNER TO QUIZ_APP_USER;
+package com.serviceb.bService;
 
--- Set unlimited quota for QUIZ_APP_USER on tablespace
-ALTER USER QUIZ_APP_USER QUOTA UNLIMITED ON QUIZ_DATA;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
--- Verify current schema (Optional)
-SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') FROM DUAL;
+@RestController
+@RequestMapping("/client")
+public class ClientController {
+
+	@GetMapping("/hello")
+	public String callServiceA() {
+		return "bbbb";
+	}
+
+}
+
+
+
+application.yml
+spring:
+ application:
+  name: bService
+ config:
+  import: optional:config-server:http://localhost:8888/ 
+
+
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: false
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
+      
+server:
+  port: 0
+
+
+
+this is my config-server
+
+application.yml
+
+eureka:
+    client:
+        service-url:
+            defaultZone: http://localhost:8761/eureka/
+server:
+    port: 8888
+spring:
+    application:
+        name: config-server
+    cloud:
+        config:
+            server:
+                native:
+                    search-locations: file:///C:/config-repo
+    profiles:
+        active: native
+
+this is my demo(eureka)
+
+apllication.yml
+
+spring:
+ application:
+  name: demo
+
+server: 
+ port: 8761
+
+eureka:
+ instance:
+   hostname: localhost
+   prefer-ip-address: false
+ client:
+   registerWithEureka: false
+   fetchRegistry: false
+   serviceUrl:
+     defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+i have config-repo folder in c drive 
+in which apiGateway.yml
+
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: false
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
+server:
+    port: 8080
+spring:
+  application:
+    name: apiGateway
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:        
+        corsConfigurations:
+          '[/service-b/**]':
+              allowedOrigins: "*"              
+              allowedMethods: "*"
+              allowedHeaders: "*"
+      routes:
+      - id: service-b
+        uri: lb://bService
+        predicates:
+        - Path=/service-b/**
+        filters:
+        - RewritePath=/service-b/(?<path>.*), /$\{path}	
+
+service-b.yml
+
+spring:
+ application:
+  name: bService
+
+
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: false
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
+      
+server:
+  port: 8082
+
+
+
+
+fix the code for linking config-server link the server config
+
+
+
+
+
+
+
+
