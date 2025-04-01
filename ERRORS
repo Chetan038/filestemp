@@ -1,3 +1,26 @@
+eroor 
+
+DiscoveryClient_SERVICE-B/service-b:8082: registering service...
+[2m2025-04-01T23:43:14.252+05:30[0;39m [32m INFO[0;39m [35m31076[0;39m [2m--- [service-b] [foReplicator-%d] [0;39m[36mc.n.d.s.t.d.RedirectingEurekaHttpClient [0;39m [2m:[0;39m Request execution error. endpoint=DefaultEndpoint{ serviceUrl='http://localhost:8761/eureka/}, exception=java.net.ConnectException: Connection refused: no further information stacktrace=jakarta.ws.rs.ProcessingException: java.net.ConnectException: Connection refused: no further information
+	at org.glassfish.jersey.client.internal.HttpUrlConnector.apply(HttpUrlConnector.java:288)
+
+Request execution error. endpoint=DefaultEndpoint{ serviceUrl='http://localhost:8761/eureka/}, exception=java.net.ConnectException: Connection refused: no further information stacktrace=jakarta.ws.rs.ProcessingException: java.net.ConnectException: Connection refused: no further information
+	at org.glassfish.jersey.client.internal.HttpUrlConnector.apply(HttpUrlConnector.java:288)
+
+here was a problem with the instance info replicator
+
+
+this eroor is shoing in demo ecureka
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: false
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
+      
+server:
+  port: 8082
 demo(eureka server)
 
 application.yml
