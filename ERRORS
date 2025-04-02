@@ -1,156 +1,23 @@
-Hibernate: select u1_0.id,u1_0.email,u1_0.name,u1_0.password,u1_0.phoneno from newso.userr u1_0 where u1_0.email=?
-Hibernate: select p1_0.post_seq_id,p1_0.post_content,p1_0.post_header,p1_0.posted_at,p1_0.posted_by,p1_0.status from newso.posts p1_0
-Hibernate: insert into newso.posts (post_header,posted_at,posted_by,status,post_seq_id,post_content) values (?,?,?,?,?,?)
-[2m2025-04-03T00:05:05.518+05:30[0;39m [33m WARN[0;39m [35m24080[0;39m [2m--- [iss] [nio-8080-exec-6] [0;39m[36mo.h.engine.jdbc.spi.SqlExceptionHelper  [0;39m [2m:[0;39m SQL Error: 4098, SQLState: 42000
-[2m2025-04-03T00:05:05.518+05:30[0;39m [31mERROR[0;39m [35m24080[0;39m [2m--- [iss] [nio-8080-exec-6] [0;39m[36mo.h.engine.jdbc.spi.SqlExceptionHelper  [0;39m [2m:[0;39m ORA-04098: trigger 'NEWSO.POSTS_BEFORE_INSERT' is invalid and failed re-validation
+SELECT * FROM ALL_SEQUENCES WHERE SEQUENCE_NAME = 'POST_SEQ' AND SEQUENCE_OWNER = 'NEWSO';
 
-https://docs.oracle.com/error-help/db/ora-04098/
-
-
-this erro is coming 
-
-this is my script sql
-
--- Create a new tablespace for the new project
-
-CREATE TABLESPACE NEW_DATA
-  DATAFILE 'C:/Chetan/Development/DB/NEW_DATA.dbf'
-  SIZE 100M AUTOEXTEND ON; 
-  
-  
-alter session set "_ORACLE_SCRIPT"=true;
-
--- Part 1: Create User to serve as the 'Schema Owner' of all the objectsjust t
-CREATE USER NEWSO IDENTIFIED BY "NEWSO_pwd"
-  DEFAULT TABLESPACE users
-  TEMPORARY TABLESPACE temp
-  QUOTA UNLIMITED ON users;
-
-
--- Part 2: Create Application Connect User with Read-write access to the schema
-    CREATE USER NEWCU IDENTIFIED BY "NEWCU_pwd"
-  DEFAULT TABLESPACE users
-  TEMPORARY TABLESPACE temp;
-  
-ALTER USER NEWSO quota unlimited on NEW_DATA;
-
-
--- ROLES
-
--- Part 1: Create application role with write access
-CREATE ROLE NEW_ROLE_CU_RW NOT IDENTIFIED;
-GRANT CREATE SESSION TO NEW_ROLE_CU_RW;
-GRANT CONNECT TO NEW_ROLE_CU_RW;
-
--- Assign ROLES
-GRANT NEW_ROLE_CU_RW TO NEWCU;
-
-
--- GRANT SELECT on sequence (if you're using sequences to generate primary keys)
-CREATE SEQUENCE NEWSO.USERR_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
-GRANT SELECT ON NEWSO.USERR_SEQ TO NEW_ROLE_CU_RW;
-
-CREATE TABLE NEWSO.USERR
-(
-
-NAME 	VARCHAR2(255)NOT NULL,
-EMAIL 		VARCHAR2(255)NOT NULL,
-PASSWORD 		VARCHAR2(255)NOT NULL,
-PHONENO		VARCHAR2(255)NOT NULL
-
-)TABLESPACE NEW_DATA;
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON NEWSO.USERR TO NEW_ROLE_CU_RW;
-
--- NOTE: Hibernate will handle the table creation based on your JPA entities
--- You do not need to manually create the APP_USER table here, Hibernate will automatically generate it based on the code.
--- Just make sure the entity
-
-Alter table NEWSO.USERR Add id NUMBER NOT NULL;
-
-Alter table NEWSO.USERR Add constraint user_pk PRIMARY KEY (id);
-
-select * from NEWSO.USERR;
-
-
-select USERR from NEWSO where  upper(USERR) ='USERR';
-
-select sys_context('userenv','current_schema') From dual;
-
-select constraint_name from user_constraints where table_name = 'NEWSO.USERR' and constraint_type='P';
-
-alter table NEWSO.USERR drop primary key;
-
-
-CREATE TABLE NEWSO.EMPLOYEE
-(
-EMP_ID VARCHAR2(50) PRIMARY KEY,
-E_NAME 	VARCHAR2(255)NOT NULL,
-SALARY NUMBER(10,2) NOT NULL,
-DEPARTMENT VARCHAR(255) NOT NULL,
-STATUS VARCHAR2(20) NOT NULL,
-PHONENO	VARCHAR2(20) NOT NULL
-
-)TABLESPACE NEW_DATA;
-
-
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON NEWSO.EMPLOYEE TO NEW_ROLE_CU_RW;
-
-INSERT INTO NEWSO.EMPLOYEE (EMP_ID,E_NAME,SALARY,DEPARTMENT,STATUS,PHONENO) VALUES('E001','CHETAN',500000,'IT','ACTIVE','912342134');
-INSERT INTO NEWSO.EMPLOYEE (EMP_ID,E_NAME,SALARY,DEPARTMENT,STATUS,PHONENO) VALUES('E002','SHARON',400000,'IT','ACTIVE','9123421354');
-
-SELECT * FROM NEWSO.EMPLOYEE;
-
-desc newso.employee;
-
-alter table newso.employee modify EMP_ID VARCHAR2(255 Char);
-alter table newso.employee modify phoneno varchar2(255 char);
-
-alter table newso.employee modify status varchar2(255 char);
-alter table newso.employee modify salary float(53); 
-commit;
-
--- post table
-
-
-CREATE TABLE NEWSO.POSTS
-(
-POST_SEQ_ID NUMBER PRIMARY KEY,
-POST_HEADER VARCHAR2(4000)NOT NULL,
-POST_CONTENT CLOB,
-STATUS VARCHAR2(220) NOT NULL,
-POSTED_BY VARCHAR2(220) NOT NULL,
-POSTED_AT TIMESTAMP WITH TIME ZONE DEFAULT SYSTIMESTAMP
-
-)TABLESPACE NEW_DATA;
-
-
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON NEWSO.POSTS TO NEW_ROLE_CU_RW;
-
-
-ALTER USER NEWSO ACCOUNT UNLOCK;
-GRANT CREATE SESSION TO NEWSO;
-
-GRANT CONNECT,RESOURCE TO NEWSO;
-
-INSERT INTO NEWSO.POSTS(POST_SEQ_ID,POST_HEADER,POST_CONTENT,STATUS,POSTED_BY) VALUES(8,'ADDED CONTACT US PAGdE','THIS IS LITTLE ON CONTdNTNEN AJSLD ALSDJ LAJSKLD JLASJD LAJSDLK JASL; JKLASJ L;ASJD LJASLK JAS JL;ASJ L;SJA JAS  ASJDL;J  ASD','ACTIVE','CHETANd');
-commit;
 
 CREATE SEQUENCE NEWSO.POST_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
-GRANT SELECT ON NEWSO.POST_SEQ TO NEW_ROLE_CU_RW;
+
+
+ALTER TRIGGER NEWSO.POSTS_BEFORE_INSERT COMPILE;
+
+
+SELECT TRIGGER_NAME, STATUS FROM USER_TRIGGERS WHERE TRIGGER_NAME = 'POSTS_BEFORE_INSERT';
+
+
+GRANT SELECT ON NEWSO.POST_SEQ TO NEWSO;
+
+
+DROP TRIGGER NEWSO.POSTS_BEFORE_INSERT;
 
 CREATE OR REPLACE TRIGGER NEWSO.POSTS_BEFORE_INSERT
 BEFORE INSERT ON NEWSO.POSTS
 FOR EACH ROW 
 BEGIN
- SELECT NEWSO.POST_SEQ.NEXTVAL INTO :NEW.POST_SEQ_ID FROM DUAL;
+    SELECT NEWSO.POST_SEQ.NEXTVAL INTO :NEW.POST_SEQ_ID FROM DUAL;
 END;
-
-
-
-
-
-
-
