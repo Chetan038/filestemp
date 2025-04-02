@@ -1,147 +1,147 @@
-eroor 
+[0;39m HHH90000025: OracleDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+[2m2025-04-02T20:44:41.589+05:30[0;39m [32m INFO[0;39m [35m22348[0;39m [2m--- [emppmng] [  restartedMain] [0;39m[36morg.hibernate.orm.connections.pooling   [0;39m [2m:[0;39m HHH10001005: Database info:
 
-DiscoveryClient_SERVICE-B/service-b:8082: registering service...
-[2m2025-04-01T23:43:14.252+05:30[0;39m [32m INFO[0;39m [35m31076[0;39m [2m--- [service-b] [foReplicator-%d] [0;39m[36mc.n.d.s.t.d.RedirectingEurekaHttpClient [0;39m [2m:[0;39m Request execution error. endpoint=DefaultEndpoint{ serviceUrl='http://localhost:8761/eureka/}, exception=java.net.ConnectException: Connection refused: no further information stacktrace=jakarta.ws.rs.ProcessingException: java.net.ConnectException: Connection refused: no further information
-	at org.glassfish.jersey.client.internal.HttpUrlConnector.apply(HttpUrlConnector.java:288)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50) ~[spring-boot-devtools-3.4.3.jar:3.4.3]
+Caused by: java.sql.SQLException: ORA-01045: user NEWSO lacks CREATE SESSION privilege; logon denied
 
-Request execution error. endpoint=DefaultEndpoint{ serviceUrl='http://localhost:8761/eureka/}, exception=java.net.ConnectException: Connection refused: no further information stacktrace=jakarta.ws.rs.ProcessingException: java.net.ConnectException: Connection refused: no further information
-	at org.glassfish.jersey.client.internal.HttpUrlConnector.apply(HttpUrlConnector.java:288)
+https://docs.oracle.com/error-help/db/ora-01045/
+[2m2025-04-02T20:44:41.562+05:30[0;39m [33m WARN[0;39m [35m22348[0;39m [2m--- [emppmng] [  restartedMain] [0;39m[36mo.h.e.j.e.i.JdbcEnvironmentInitiator    [0;39m [2m:[0;39m HHH000342: Could not obtain connection to query metadata
 
-here was a problem with the instance info replicator
+org.hibernate.exception.GenericJDBCException: unable to obtain isolated JDBC connection [ORA-01045: user NEWSO lacks CREATE SESSION privilege; logon denied
 
+i will give my sql oracle script
 
-this eroor is shoing in demo ecureka
-eureka:
-  instance:
-    hostname: localhost
-    prefer-ip-address: false
-  client:
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
-      
-server:
-  port: 8082
-demo(eureka server)
+-- Create a new tablespace for the new project
 
-application.yml
+CREATE TABLESPACE NEW_DATA
+  DATAFILE 'C:/Chetan/Development/DB/NEW_DATA.dbf'
+  SIZE 100M AUTOEXTEND ON; 
+  
+  
+alter session set "_ORACLE_SCRIPT"=true;
 
-spring:
- application:
-  name: demo
- config:
-   import: "optional:configserver:http://localhost:8888/"
+-- Part 1: Create User to serve as the 'Schema Owner' of all the objectsjust t
+CREATE USER NEWSO IDENTIFIED BY "NEWSO_pwd"
+  DEFAULT TABLESPACE users
+  TEMPORARY TABLESPACE temp
+  QUOTA UNLIMITED ON users;
 
 
-config-server
-
-applicatino.yml
-
-
-server:
-    port: 8888
-spring:
-    application:
-        name: config-server
-    cloud:
-        config:
-            server:
-                native:
-                    search-locations: file:///C:/config-repo
-    profiles:
-        active: native
-
-bService
-
-aplicatino.yml;
-
-spring:
- application:
-  name: service-b
- config:
-  import: optional:configserver:http://localhost:8888/
+-- Part 2: Create Application Connect User with Read-write access to the schema
+    CREATE USER NEWCU IDENTIFIED BY "NEWCU_pwd"
+  DEFAULT TABLESPACE users
+  TEMPORARY TABLESPACE temp;
+  
+ALTER USER NEWSO quota unlimited on NEW_DATA;
 
 
-apiGateway
+-- ROLES
 
-application.yml
+-- Part 1: Create application role with write access
+CREATE ROLE NEW_ROLE_CU_RW NOT IDENTIFIED;
+GRANT CREATE SESSION TO NEW_ROLE_CU_RW;
+GRANT CONNECT TO NEW_ROLE_CU_RW;
 
-
-spring:
-  application:
-    name: apiGateway
-  config:
-    import: optional:configserver:http://localhost:8888/
-
-
-this is my c/config-repo/apiGateway.yml
-
-apiGateway.yml
-
-eureka:
-  instance:
-    hostname: localhost
-    prefer-ip-address: false
-  client:
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
-server:
-    port: 8080
-spring:
-  application:
-    name: apiGateway
-  cloud:
-    gateway:
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
-      globalcors:        
-        corsConfigurations:
-          '[/service-b/**]':
-              allowedOrigins: "*"              
-              allowedMethods: "*"
-              allowedHeaders: "*"
-      routes:
-      - id: service-b
-        uri: lb://service-b
-        predicates:
-        - Path=/service-b/**
-        filters:
-        - RewritePath=/service-b/(?<path>.*), /$\{path}	
-
- c/config-repo/demo.yml
-
-demo.yml
-server: 
- port: 8761
-
-eureka:
- instance:
-   hostname: localhost
-   prefer-ip-address: false
- client:
-   registerWithEureka: false
-   fetchRegistry: false
-   serviceUrl:
-     defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-
- c/config-repo/service-b.yml
-
-service-b.yml
+-- Assign ROLES
+GRANT NEW_ROLE_CU_RW TO NEWCU;
 
 
-eureka:
-  instance:
-    hostname: localhost
-    prefer-ip-address: false
-  client:
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
-      
-server:
-  port: 8082
+-- GRANT SELECT on sequence (if you're using sequences to generate primary keys)
+CREATE SEQUENCE NEWSO.USERR_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+GRANT SELECT ON NEWSO.USERR_SEQ TO NEW_ROLE_CU_RW;
+
+CREATE TABLE NEWSO.USERR
+(
+
+NAME 	VARCHAR2(255)NOT NULL,
+EMAIL 		VARCHAR2(255)NOT NULL,
+PASSWORD 		VARCHAR2(255)NOT NULL,
+PHONENO		VARCHAR2(255)NOT NULL
+
+)TABLESPACE NEW_DATA;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON NEWSO.USERR TO NEW_ROLE_CU_RW;
+
+-- NOTE: Hibernate will handle the table creation based on your JPA entities
+-- You do not need to manually create the APP_USER table here, Hibernate will automatically generate it based on the code.
+-- Just make sure the entity
+
+Alter table NEWSO.USERR Add id NUMBER NOT NULL;
+
+Alter table NEWSO.USERR Add constraint user_pk PRIMARY KEY (id);
+
+select * from NEWSO.USERR;
+
+
+select USERR from NEWSO where  upper(USERR) ='USERR';
+
+select sys_context('userenv','current_schema') From dual;
+
+select constraint_name from user_constraints where table_name = 'NEWSO.USERR' and constraint_type='P';
+
+alter table NEWSO.USERR drop primary key;
+
+
+CREATE TABLE NEWSO.EMPLOYEE
+(
+EMP_ID VARCHAR2(50) PRIMARY KEY,
+E_NAME 	VARCHAR2(255)NOT NULL,
+SALARY NUMBER(10,2) NOT NULL,
+DEPARTMENT VARCHAR(255) NOT NULL,
+STATUS VARCHAR2(20) NOT NULL,
+PHONENO	VARCHAR2(20) NOT NULL
+
+)TABLESPACE NEW_DATA;
 
 
 
-fix api gate way is not working port 8080 is not working when calling service b from that port
-but service b is running in 8082 port and api gateway and b service is listing in eureka server
+GRANT SELECT, INSERT, UPDATE, DELETE ON NEWSO.EMPLOYEE TO NEW_ROLE_CU_RW;
 
-fix and check prperly why api gate way is not working fix that 
+INSERT INTO NEWSO.EMPLOYEE (EMP_ID,E_NAME,SALARY,DEPARTMENT,STATUS,PHONENO) VALUES('E001','CHETAN',500000,'IT','ACTIVE','912342134');
+INSERT INTO NEWSO.EMPLOYEE (EMP_ID,E_NAME,SALARY,DEPARTMENT,STATUS,PHONENO) VALUES('E002','SHARON',400000,'IT','ACTIVE','9123421354');
+
+SELECT * FROM NEWSO.EMPLOYEE;
+
+desc newso.employee;
+
+alter table newso.employee modify EMP_ID VARCHAR2(255 Char);
+alter table newso.employee modify phoneno varchar2(255 char);
+
+alter table newso.employee modify status varchar2(255 char);
+alter table newso.employee modify salary float(53); 
+commit;
+
+-- post table
+
+
+CREATE TABLE NEWSO.POSTS
+(
+POST_SEQ_ID NUMBER PRIMARY KEY,
+POST_HEADER VARCHAR2(4000)NOT NULL,
+POST_CONTENT CLOB,
+STATUS VARCHAR2(220) NOT NULL,
+POSTED_BY VARCHAR2(220) NOT NULL,
+POSTED_AT TIMESTAMP WITH TIME ZONE DEFAULT SYSTIMESTAMP
+
+)TABLESPACE NEW_DATA;
+
+
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON NEWSO.POSTS TO NEW_ROLE_CU_RW;
+
+INSERT INTO NEWSO.POSTS(POST_SEQ_ID,POST_HEADER,POST_CONTENT,STATUS,POSTED_BY) VALUES(8,'ADDED CONTACT US PAGdE','THIS IS LITTLE ON CONTdNTNEN AJSLD ALSDJ LAJSKLD JLASJD LAJSDLK JASL; JKLASJ L;ASJD LJASLK JAS JL;ASJ L;SJA JAS  ASJDL;J  ASD','ACTIVE','CHETANd');
+commit;
+
+CREATE SEQUENCE NEWSO.POST_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+GRANT SELECT ON NEWSO.POST_SEQ TO NEW_ROLE_CU_RW;
+
+CREATE OR REPLACE TRIGGER NEWSO.POSTS_BEFORE_INSERT BEFORE INSERT ON NEWSO.POSTS
+FOR EACH ROW 
+BEGIN
+SELECT NEWSO.POST_SEQ.NEXTVAL INTO : NEW.POST_SEQ_ID FROM DUAL;
+END;
+
+
+
+
+this is erro is coming in my backend spring boot fix it 
