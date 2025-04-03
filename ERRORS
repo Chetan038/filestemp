@@ -11,31 +11,28 @@ body {
     align-items: center;
     min-height: 100vh;
     flex-direction: column;
-    padding: 20px;
+    padding: 5%;
     background-color: #fff;
 }
 
-/* Container adjusts for all screens */
 .container {
     display: flex;
-    flex-wrap: wrap; /* Ensures wrapping on small screens */
-    max-width: 1200px;
-    width: 95%;
-    justify-content: center;
+    max-width: 90%;
+    width: 100%;
+    justify-content: space-between;
     align-items: center;
-    gap: 40px;
+    gap: 5vw;
+    flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
 }
 
-/* Content section remains flexible */
 .content {
     flex: 1;
-    max-width: 500px;
-    text-align: center;
+    max-width: 50vw;
+    min-width: 300px; /* Ensures readability on smaller screens */
 }
 
-/* Headline and text adjustments for better scaling */
 .headline {
-    font-size: clamp(2rem, 5vw, 3.5rem); /* Adjusts based on screen size */
+    font-size: clamp(2rem, 5vw, 3.5rem); /* Adjusts font size based on screen width */
     font-weight: bold;
     line-height: 1.2;
     margin-bottom: 20px;
@@ -43,23 +40,23 @@ body {
 }
 
 .subheading {
-    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
     color: #333;
     margin-bottom: 40px;
     line-height: 1.5;
 }
 
-/* Button styling for all screens */
 .cta-button {
     display: inline-block;
     background-color: #000;
     color: #fff;
     font-weight: bold;
-    padding: 15px 30px;
+    padding: 1em 2em;
     border-radius: 6px;
     text-decoration: none;
     font-size: 1.1rem;
     margin-bottom: 50px;
+    transition: background 0.3s ease;
 }
 
 .cta-button:hover {
@@ -67,18 +64,18 @@ body {
     color: #000;
 }
 
-/* Features section wraps correctly on all screens */
 .features {
     display: flex;
-    flex-wrap: wrap; /* Ensures items wrap in smaller screens */
-    justify-content: center;
-    gap: 30px;
+    flex-wrap: wrap; /* Allows features to wrap on smaller screens */
+    gap: 2vw;
 }
 
 .feature {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 1vw;
+    flex: 1;
+    min-width: 250px;
 }
 
 .feature-icon {
@@ -93,16 +90,15 @@ body {
 }
 
 .feature-text {
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 1vw, 0.9rem);
     display: flex;
     flex-direction: column;
 }
 
-/* Illustration container scales properly */
 .illustration {
     flex: 1;
-    max-width: 600px;
-    width: 100%;
+    max-width: 50vw;
+    min-width: 300px;
 }
 
 .illustration img {
@@ -110,16 +106,14 @@ body {
     height: auto;
 }
 
-/* Footer remains positioned correctly */
 .footer {
-    position: relative;
-    margin-top: 50px;
+    margin-top: 5vh;
     text-align: center;
     font-size: 0.9rem;
     color: #555;
 }
 
-/* Mobile & Tablet View */
+/* Responsive Design */
 @media (max-width: 1024px) {
     .container {
         flex-direction: column;
@@ -129,47 +123,19 @@ body {
     .features {
         justify-content: center;
     }
-}
 
-/* Handle Landscape Mode */
-@media (orientation: landscape) and (max-width: 1024px) {
-    .container {
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-    }
-
-    .content {
-        max-width: 450px;
-        text-align: left;
-    }
-
-    .features {
-        justify-content: flex-start;
+    .illustration {
+        order: -1; /* Moves the image above the text on smaller screens */
     }
 }
 
-/* Extra Small Screens (Phones) */
-@media (max-width: 480px) {
-    .headline {
-        font-size: 2rem;
-    }
-
-    .subheading {
-        font-size: 1rem;
+@media (max-width: 768px) {
+    .content, .illustration {
+        max-width: 90%;
     }
 
     .cta-button {
         width: 100%;
-        padding: 12px 0;
-    }
-
-    .features {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .feature {
-        justify-content: center;
+        text-align: center;
     }
 }
