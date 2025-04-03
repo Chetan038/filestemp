@@ -1,187 +1,137 @@
-
-    
-    <nav class="navbar" >
-        <div class="logo">
-            <img src="https://thumbs.dreamstime.com/b/abstract-one-monocular-eye-sharing-platform-logo-template-144446179.jpg" alt="WeDu Logo">
-            <div>
-                <a routerLink="" class="title">Information Sharing System</a>
-                <div class="tagline">Communicate. Collaborate. Create.</div>
-            </div>
+<nav class="navbar">
+    <div class="logo">
+        <img src="https://thumbs.dreamstime.com/b/abstract-one-monocular-eye-sharing-platform-logo-template-144446179.jpg" alt="WeDu Logo">
+        <div>
+            <a routerLink="" class="title">Information Sharing System</a>
+            <div class="tagline">Communicate. Collaborate. Create.</div>
         </div>
-        <div class="nav-links" *ngIf="!loggedIn">
-            <a href="#" class="icon1">Logs</a>
-            <a routerLink="/home" class="icon2">Home</a>
-        </div>
+    </div>
 
-        <div class="nav-links" *ngIf="loggedIn">
-            <a href="#" class="icon3">Logs</a>
-            <a routerLink="/home" class="icon4">Home</a>
-        </div>
+    <!-- Hamburger Menu for Mobile -->
+    <button class="menu-toggle" id="menu-toggle">&#9776;</button>
 
+    <div class="nav-links" id="nav-links">
+        <a href="#" class="icon">Logs</a>
+        <a routerLink="/home" class="icon">Home</a>
+        
+        <button *ngIf="!loggedIn" routerLink="/login" class="login-btn">Admin Login</button>
+        <button *ngIf="loggedIn" routerLink="/admindashboard" class="login-btn-2">Admin Details</button>
+        <button *ngIf="loggedIn" routerLink="/create" class="login-btn-3">Create New Post</button>
+        <button (click)="logoutUser()" routerLink="/login" *ngIf="loggedIn" class="login-btn">Logout</button>
+    </div>
+</nav>
 
-        <button *ngIf="!loggedIn"  routerLink="/login" class="login-btn">Admin Login</button>
-        <button *ngIf="loggedIn" routerLink="/admindashboard" class="login-btn-2">Admin details</button>
-    <button   routerLink="/create" *ngIf="loggedIn"  class="login-btn-3">Create New Post</button>
-    <button (click)="logoutUser()"  routerLink="/login" *ngIf="loggedIn"  class="login-btn">Logout</button>
-    </nav>
+<script>
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+        document.getElementById('nav-links').classList.toggle('show');
+    });
+</script>
 
- 
-css
-
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(135deg, #f2edf8, #ddd1ee); /* Darker violet gradient */
-    color: white;
-    padding: 15px 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-  }
-  
-  .logo-title {
-    display: flex;
-    align-items: center;
-  }
-  
-  .title {
-    font-size: 20px;
-    font-weight: 600;
-    text-decoration: none;
-    color: rgb(6, 6, 1);
-  }
-  
-  .login-btn {
-    position: relative;
-    background-color: #ffc803; /* Darker violet */
-    color: rgb(0, 0, 0);
-    padding: 10px 19px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-    left: 2%;
-  }
-
-  .login-btn-2{
-    
-    position: relative;
-    background-color: #fabe1bad; /* Darker violet */
-    color: rgb(0, 0, 0);
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-    left: 34%;
-  }
-
-  
-  .login-btn-3{
-    
-    position: relative;
-    background-color: #f7bf30a5; /* Darker violet */
-    color: rgba(0, 0, 0, 0.845);
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-    left: -2%;
-  }
-  
-  
-  .login-btn:hover {
-    background-color: #f4d403e2; /* Slightly darker violet */
-  }
-  
-  
-  * {
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
+
+/* Navbar Styling */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 50px;
-    background: white;
-    border-bottom: 1px solid #ddd;
+    background: linear-gradient(135deg, #f2edf8, #ddd1ee);
+    padding: 15px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* Logo Section */
 .logo {
     display: flex;
     align-items: center;
 }
+
 .logo img {
     width: 40px;
     height: 40px;
     margin-right: 10px;
 }
-.logo-text {
+
+.title {
     font-size: 20px;
-    font-weight: bold;
-    color: #000000;
+    font-weight: 600;
+    text-decoration: none;
+    color: rgb(6, 6, 1);
 }
+
 .tagline {
     font-size: 14px;
     color: #666;
 }
+
+/* Navigation Links */
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
-.nav-links a {
-    text-decoration: none;
+
+/* Buttons */
+.login-btn, .login-btn-2, .login-btn-3 {
+    background-color: #fabe1b;
     color: black;
-    font-size: 16px;
-}
-.login {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.login img {
-    width: 25px;
-    height: 25px;
-}
-.get-started {
-    background: #f4a51c;
-    color: white;
     padding: 10px 15px;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    font-weight: bold;
-    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
-.icon1{
-  position: absolute;
-  left: 75%;
+.login-btn:hover, .login-btn-2:hover, .login-btn-3:hover {
+    background-color: #f4d403e2;
 }
 
-.icon2{
-  position: absolute;
-  left: 80%;
+/* Mobile: Stack Buttons & Use Hamburger Menu */
+@media screen and (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 15px;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .nav-links a, .nav-links button {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        background: white;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .menu-toggle {
+        display: block;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: black;
+        margin-left: auto;
+    }
 }
 
-.icon3{
-  position: absolute;
-  left: 61%;
-}
-
-.icon4{
-  position: absolute;
-  left: 55%;
+/* Show menu when active */
+@media screen and (max-width: 768px) {
+    .nav-links.show {
+        display: flex;
+    }
 }
 
 
 
-
-make this navbar look good for every sscreen size in mobile to desktop fix for mobile screen its display buttoj one over other make look professinal for all screen size
