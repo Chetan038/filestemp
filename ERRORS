@@ -1,141 +1,187 @@
-* {
+
+    
+    <nav class="navbar" >
+        <div class="logo">
+            <img src="https://thumbs.dreamstime.com/b/abstract-one-monocular-eye-sharing-platform-logo-template-144446179.jpg" alt="WeDu Logo">
+            <div>
+                <a routerLink="" class="title">Information Sharing System</a>
+                <div class="tagline">Communicate. Collaborate. Create.</div>
+            </div>
+        </div>
+        <div class="nav-links" *ngIf="!loggedIn">
+            <a href="#" class="icon1">Logs</a>
+            <a routerLink="/home" class="icon2">Home</a>
+        </div>
+
+        <div class="nav-links" *ngIf="loggedIn">
+            <a href="#" class="icon3">Logs</a>
+            <a routerLink="/home" class="icon4">Home</a>
+        </div>
+
+
+        <button *ngIf="!loggedIn"  routerLink="/login" class="login-btn">Admin Login</button>
+        <button *ngIf="loggedIn" routerLink="/admindashboard" class="login-btn-2">Admin details</button>
+    <button   routerLink="/create" *ngIf="loggedIn"  class="login-btn-3">Create New Post</button>
+    <button (click)="logoutUser()"  routerLink="/login" *ngIf="loggedIn"  class="login-btn">Logout</button>
+    </nav>
+
+ 
+css
+
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #f2edf8, #ddd1ee); /* Darker violet gradient */
+    color: white;
+    padding: 15px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  }
+  
+  .logo-title {
+    display: flex;
+    align-items: center;
+  }
+  
+  .title {
+    font-size: 20px;
+    font-weight: 600;
+    text-decoration: none;
+    color: rgb(6, 6, 1);
+  }
+  
+  .login-btn {
+    position: relative;
+    background-color: #ffc803; /* Darker violet */
+    color: rgb(0, 0, 0);
+    padding: 10px 19px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    left: 2%;
+  }
+
+  .login-btn-2{
+    
+    position: relative;
+    background-color: #fabe1bad; /* Darker violet */
+    color: rgb(0, 0, 0);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    left: 34%;
+  }
+
+  
+  .login-btn-3{
+    
+    position: relative;
+    background-color: #f7bf30a5; /* Darker violet */
+    color: rgba(0, 0, 0, 0.845);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    left: -2%;
+  }
+  
+  
+  .login-btn:hover {
+    background-color: #f4d403e2; /* Slightly darker violet */
+  }
+  
+  
+  * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+    font-family: Arial, sans-serif;
 }
-
-body {
+.navbar {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    flex-direction: column;
-    padding: 5%;
-    background-color: #fff;
-}
-
-.container {
-    display: flex;
-    max-width: 90%;
-    width: 100%;
     justify-content: space-between;
     align-items: center;
-    gap: 5vw;
-    flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
+    padding: 15px 50px;
+    background: white;
+    border-bottom: 1px solid #ddd;
 }
-
-.content {
-    flex: 1;
-    max-width: 50vw;
-    min-width: 300px; /* Ensures readability on smaller screens */
-}
-
-.headline {
-    font-size: clamp(2rem, 5vw, 3.5rem); /* Adjusts font size based on screen width */
-    font-weight: bold;
-    line-height: 1.2;
-    margin-bottom: 20px;
-    color: #ffbf23;
-}
-
-.subheading {
-    font-size: clamp(1rem, 2.5vw, 1.25rem);
-    color: #333;
-    margin-bottom: 40px;
-    line-height: 1.5;
-}
-
-.cta-button {
-    display: inline-block;
-    background-color: #000;
-    color: #fff;
-    font-weight: bold;
-    padding: 1em 2em;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 1.1rem;
-    margin-bottom: 50px;
-    transition: background 0.3s ease;
-}
-
-.cta-button:hover {
-    background-color: #f4bc03d7;
-    color: #000;
-}
-
-.features {
-    display: flex;
-    flex-wrap: wrap; /* Allows features to wrap on smaller screens */
-    gap: 2vw;
-}
-
-.feature {
+.logo {
     display: flex;
     align-items: center;
-    gap: 1vw;
-    flex: 1;
-    min-width: 250px;
 }
-
-.feature-icon {
+.logo img {
     width: 40px;
     height: 40px;
+    margin-right: 10px;
+}
+.logo-text {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000000;
+}
+.tagline {
+    font-size: 14px;
+    color: #666;
+}
+.nav-links {
     display: flex;
-    justify-content: center;
     align-items: center;
-    background-color: #000;
-    border-radius: 6px;
-    color: #fff;
+    gap: 20px;
 }
-
-.feature-text {
-    font-size: clamp(0.8rem, 1vw, 0.9rem);
+.nav-links a {
+    text-decoration: none;
+    color: black;
+    font-size: 16px;
+}
+.login {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.login img {
+    width: 25px;
+    height: 25px;
+}
+.get-started {
+    background: #f4a51c;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
 }
 
-.illustration {
-    flex: 1;
-    max-width: 50vw;
-    min-width: 300px;
+.icon1{
+  position: absolute;
+  left: 75%;
 }
 
-.illustration img {
-    width: 100%;
-    height: auto;
+.icon2{
+  position: absolute;
+  left: 80%;
 }
 
-.footer {
-    margin-top: 5vh;
-    text-align: center;
-    font-size: 0.9rem;
-    color: #555;
+.icon3{
+  position: absolute;
+  left: 61%;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .container {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .features {
-        justify-content: center;
-    }
-
-    .illustration {
-        order: -1; /* Moves the image above the text on smaller screens */
-    }
+.icon4{
+  position: absolute;
+  left: 55%;
 }
 
-@media (max-width: 768px) {
-    .content, .illustration {
-        max-width: 90%;
-    }
 
-    .cta-button {
-        width: 100%;
-        text-align: center;
-    }
-}
+
+
+make this navbar look good for every sscreen size in mobile to desktop fix for mobile screen its display buttoj one over other make look professinal for all screen size
