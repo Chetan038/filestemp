@@ -1,23 +1,124 @@
-SELECT * FROM ALL_SEQUENCES WHERE SEQUENCE_NAME = 'POST_SEQ' AND SEQUENCE_OWNER = 'NEWSO';
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.container {
+    display: flex;
+    max-width: 1200px;
+    width: 95%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+}
+
+.content {
+    flex: 1;
+    max-width: 500px;
+}
+
+.headline {
+    font-size: 3.5rem;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    color: #ffbf23;
+}
+
+.subheading {
+    font-size: 1.25rem;
+    color: #333;
+    margin-bottom: 40px;
+    line-height: 1.5;
+}
+
+.cta-button {
+    display: inline-block;
+    background-color: #000;
+    color: #fff;
+    font-weight: bold;
+    padding: 15px 30px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    margin-bottom: 50px;
+}
+
+.cta-button:hover {
+    background-color: #f4bc03d7;
+    color: #000;
+}
+
+.features {
+    display: flex;
+    gap: 30px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.feature-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+    border-radius: 6px;
+    color: #fff;
+}
+
+.feature-text {
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.illustration {
+    flex: 1;
+    max-width: 600px;
+}
+
+.illustration img {
+    width: 100%;
+    height: auto;
+}
+
+.footer {
+    position: relative;
+    margin-top: 50px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #555;
+    top: -10%;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .features {
+        justify-content: center;
+    }
+}
 
 
-CREATE SEQUENCE NEWSO.POST_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
 
-
-ALTER TRIGGER NEWSO.POSTS_BEFORE_INSERT COMPILE;
-
-
-SELECT TRIGGER_NAME, STATUS FROM USER_TRIGGERS WHERE TRIGGER_NAME = 'POSTS_BEFORE_INSERT';
-
-
-GRANT SELECT ON NEWSO.POST_SEQ TO NEWSO;
-
-
-DROP TRIGGER NEWSO.POSTS_BEFORE_INSERT;
-
-CREATE OR REPLACE TRIGGER NEWSO.POSTS_BEFORE_INSERT
-BEFORE INSERT ON NEWSO.POSTS
-FOR EACH ROW 
-BEGIN
-    SELECT NEWSO.POST_SEQ.NEXTVAL INTO :NEW.POST_SEQ_ID FROM DUAL;
-END;
+make this css felixble for all types of screen from mobileto computer all screen should look like this only fix the oritentatnos
