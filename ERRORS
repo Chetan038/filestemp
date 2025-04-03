@@ -56,15 +56,20 @@
             gap: 15px;
         }
 
-        .nav-links a {
+        .nav-links a,
+        .nav-links button {
             text-decoration: none;
             color: black;
             font-size: 16px;
             padding: 8px 12px;
             transition: color 0.3s ease;
+            background: none;
+            border: none;
+            cursor: pointer;
         }
 
-        .nav-links a:hover {
+        .nav-links a:hover,
+        .nav-links button:hover {
             color: #5a3d8c;
         }
 
@@ -89,9 +94,10 @@
             display: none;
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
             color: black;
+            padding: 10px;
         }
 
         /* Responsive Design */
@@ -107,9 +113,13 @@
                 flex-direction: column;
                 width: 100%;
                 margin-top: 10px;
+                background: white;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                padding: 10px;
             }
 
-            .nav-links a, .nav-links button {
+            .nav-links a,
+            .nav-links button {
                 display: block;
                 width: 100%;
                 text-align: center;
@@ -121,8 +131,6 @@
             .menu-toggle {
                 display: block;
                 margin-left: auto;
-                font-size: 28px;
-                padding: 10px;
             }
 
             /* Show menu when active */
@@ -159,7 +167,12 @@
 
     <script>
         document.getElementById('menu-toggle').addEventListener('click', function() {
-            document.getElementById('nav-links').classList.toggle('show');
+            const navLinks = document.getElementById('nav-links');
+            if (navLinks.classList.contains('show')) {
+                navLinks.classList.remove('show');
+            } else {
+                navLinks.classList.add('show');
+            }
         });
     </script>
 
