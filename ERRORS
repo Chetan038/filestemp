@@ -15,22 +15,27 @@ body {
     background-color: #fff;
 }
 
+/* Container adjusts for all screens */
 .container {
     display: flex;
+    flex-wrap: wrap; /* Ensures wrapping on small screens */
     max-width: 1200px;
     width: 95%;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     gap: 40px;
 }
 
+/* Content section remains flexible */
 .content {
     flex: 1;
     max-width: 500px;
+    text-align: center;
 }
 
+/* Headline and text adjustments for better scaling */
 .headline {
-    font-size: 3.5rem;
+    font-size: clamp(2rem, 5vw, 3.5rem); /* Adjusts based on screen size */
     font-weight: bold;
     line-height: 1.2;
     margin-bottom: 20px;
@@ -38,12 +43,13 @@ body {
 }
 
 .subheading {
-    font-size: 1.25rem;
+    font-size: clamp(1rem, 2vw, 1.25rem);
     color: #333;
     margin-bottom: 40px;
     line-height: 1.5;
 }
 
+/* Button styling for all screens */
 .cta-button {
     display: inline-block;
     background-color: #000;
@@ -61,8 +67,11 @@ body {
     color: #000;
 }
 
+/* Features section wraps correctly on all screens */
 .features {
     display: flex;
+    flex-wrap: wrap; /* Ensures items wrap in smaller screens */
+    justify-content: center;
     gap: 30px;
 }
 
@@ -89,9 +98,11 @@ body {
     flex-direction: column;
 }
 
+/* Illustration container scales properly */
 .illustration {
     flex: 1;
     max-width: 600px;
+    width: 100%;
 }
 
 .illustration img {
@@ -99,26 +110,66 @@ body {
     height: auto;
 }
 
+/* Footer remains positioned correctly */
 .footer {
     position: relative;
     margin-top: 50px;
     text-align: center;
     font-size: 0.9rem;
     color: #555;
-    top: -10%;
 }
 
-@media (max-width: 768px) {
+/* Mobile & Tablet View */
+@media (max-width: 1024px) {
     .container {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .features {
         justify-content: center;
     }
 }
 
+/* Handle Landscape Mode */
+@media (orientation: landscape) and (max-width: 1024px) {
+    .container {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+    }
 
+    .content {
+        max-width: 450px;
+        text-align: left;
+    }
 
-make this css felixble for all types of screen from mobileto computer all screen should look like this only fix the oritentatnos
+    .features {
+        justify-content: flex-start;
+    }
+}
+
+/* Extra Small Screens (Phones) */
+@media (max-width: 480px) {
+    .headline {
+        font-size: 2rem;
+    }
+
+    .subheading {
+        font-size: 1rem;
+    }
+
+    .cta-button {
+        width: 100%;
+        padding: 12px 0;
+    }
+
+    .features {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .feature {
+        justify-content: center;
+    }
+}
